@@ -682,7 +682,7 @@
     if (!header) return;
 
     let lastScrollY = window.scrollY || document.documentElement.scrollTop || 0;
-    const threshold = 8; // Поріг чутливості у px для запобігання тремтінню
+    const threshold = 20; // Поріг чутливості у px для запобігання тремтінню (активація лише при впевненому жесті)
     const minScrollForHide = 80; // Мінімальна глибина скролу для приховування
 
     const updateHeaderHeight = () => {

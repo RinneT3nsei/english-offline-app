@@ -52,6 +52,7 @@
 
   // DOM Elements
   const el = {
+    appHeader: document.getElementById('appHeader'),
     cardsList: document.getElementById('cardsList'),
     searchInput: document.getElementById('searchInput'),
     clearSearchBtn: document.getElementById('clearSearchBtn'),
@@ -674,10 +675,61 @@
   }
 
   // ---------------------------------------------------------------------------
+  // Scroll-Aware Quick Return Header Controller
+  // ---------------------------------------------------------------------------
+  function initQuickReturnHeader() {
+    const header = el.appHeader || document.getElementById('appHeader') || document.querySelector('.app-header');
+    if (!header) return;
+
+    let lastScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+    const threshold = 8; // Поріг чутливості у px для запобігання тремтінню
+    const minScrollForHide = 80; // Мінімальна глибина скролу для приховування
+
+    const updateHeaderHeight = () => {
+      const h = header.offsetHeight;
+      if (h > 0) {
+        document.documentElement.style.setProperty('--header-height', `${h}px`);
+      }
+    };
+
+    updateHeaderHeight();
+    window.addEventListener('resize', updateHeaderHeight, { passive: true });
+
+    window.addEventListener('scroll', () => {
+      const currentScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+      const delta = currentScrollY - lastScrollY;
+
+      // 1. Якщо користувач на самому верху сторінки — завжди показуємо
+      if (currentScrollY <= 10) {
+        header.classList.remove('header--hidden');
+        lastScrollY = currentScrollY;
+        return;
+      }
+
+      // 2. Ігноруємо мікрорухи менші за threshold
+      if (Math.abs(delta) < threshold) {
+        return;
+      }
+
+      // 3. Скролять униз (delta > 0) і скрол більший за 80px — приховуємо
+      if (delta > 0 && currentScrollY > minScrollForHide) {
+        header.classList.add('header--hidden');
+      } 
+      // 4. Скролять угору (delta < 0) — миттєвий швидкий показ (Quick Return)
+      else if (delta < 0) {
+        header.classList.remove('header--hidden');
+      }
+
+      lastScrollY = currentScrollY;
+    }, { passive: true });
+  }
+
+  // ---------------------------------------------------------------------------
   // Bootstrapping
   // ---------------------------------------------------------------------------
   initOnnxEnvironment();
   initEvents();
+  initQuickReturnHeader();
   setTrainingMode(state.isTrainingMode);
   loadDictionary();
 

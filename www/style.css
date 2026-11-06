@@ -65,12 +65,18 @@ html, body {
 }
 
 /* ==========================================================================
-   Header & Search Control Bar (Sticky M3 App Bar)
+   Header & Search Control Bar (Scroll-aware Quick Return M3 App Bar)
    ========================================================================== */
 
+:root {
+  --header-height: calc(136px + env(safe-area-inset-top));
+}
+
 .app-header {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 1000;
   background: rgba(15, 23, 42, 0.85);
   backdrop-filter: blur(16px);
@@ -81,7 +87,14 @@ html, body {
   padding-left: max(14px, env(safe-area-inset-left));
   padding-right: max(14px, env(safe-area-inset-right));
   padding-bottom: 6px;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.3s ease;
+  will-change: transform;
+}
+
+/* Quick Return Hide state when scrolling down */
+.header--hidden {
+  transform: translateY(-100%);
+  box-shadow: none;
 }
 
 .header-inner {
@@ -318,7 +331,7 @@ html, body {
    ========================================================================== */
 
 .main-content {
-  padding: 10px 14px 28px;
+  padding-top: calc(var(--header-height, 140px) + 10px);
   padding-left: max(14px, env(safe-area-inset-left));
   padding-right: max(14px, env(safe-area-inset-right));
   padding-bottom: max(32px, env(safe-area-inset-bottom));

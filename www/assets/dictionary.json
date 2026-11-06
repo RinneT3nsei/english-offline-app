@@ -1,0 +1,552 @@
+[
+  {
+    "id": 1,
+    "word": "Resilience",
+    "ipa": "/rɪˈzɪl.jəns/",
+    "partOfSpeech": "noun",
+    "translation": "стійкість, життєстійкість",
+    "exampleSentence": "Her mental resilience helped her overcome unexpected hardships.",
+    "exampleTranslation": "Її психологічна стійкість допомогла їй подолати несподівані труднощі.",
+    "level": "B2"
+  },
+  {
+    "id": 2,
+    "word": "Perseverance",
+    "ipa": "/ˌpɜː.sɪˈvɪə.rəns/",
+    "partOfSpeech": "noun",
+    "translation": "наполегливість, завзятість",
+    "exampleSentence": "Through hard work and perseverance, he achieved his biggest dream.",
+    "exampleTranslation": "Завдяки наполегливій праці та завзятості він досяг своєї найбільшої мрії.",
+    "level": "C1"
+  },
+  {
+    "id": 3,
+    "word": "Serendipity",
+    "ipa": "/ˌser.ənˈdɪp.ə.ti/",
+    "partOfSpeech": "noun",
+    "translation": "щаслива випадковість, інтуїтивна прозорливість",
+    "exampleSentence": "Finding this cozy bookstore was pure serendipity.",
+    "exampleTranslation": "Знайти цю затишну книгарню було справжньою щасливою випадковістю.",
+    "level": "C2"
+  },
+  {
+    "id": 4,
+    "word": "Eloquent",
+    "ipa": "/ˈel.ə.kwənt/",
+    "partOfSpeech": "adjective",
+    "translation": "красномовний, переконливий",
+    "exampleSentence": "She gave an eloquent speech that touched everyone in the room.",
+    "exampleTranslation": "Вона виголосила красномовну промову, яка зворушила кожного присутнього.",
+    "level": "B2"
+  },
+  {
+    "id": 5,
+    "word": "Ambiguity",
+    "ipa": "/ˌæm.bɪˈɡjuː.ə.ti/",
+    "partOfSpeech": "noun",
+    "translation": "двозначність, невизначеність",
+    "exampleSentence": "Clear instructions reduce ambiguity and prevent common mistakes.",
+    "exampleTranslation": "Чіткі інструкції зменшують двозначність і запобігають типовим помилкам.",
+    "level": "B2"
+  },
+  {
+    "id": 6,
+    "word": "Tenacious",
+    "ipa": "/təˈneɪ.ʃəs/",
+    "partOfSpeech": "adjective",
+    "translation": "чіпкий, впертий, непохитний",
+    "exampleSentence": "He was a tenacious investigator who never abandoned a case.",
+    "exampleTranslation": "Він був непохитним слідчим, який ніколи не кидав справу.",
+    "level": "C1"
+  },
+  {
+    "id": 7,
+    "word": "Meticulous",
+    "ipa": "/məˈtɪk.jə.ləs/",
+    "partOfSpeech": "adjective",
+    "translation": "ретельний, педантичний",
+    "exampleSentence": "She paid meticulous attention to every single detail in the report.",
+    "exampleTranslation": "Вона приділила ретельну увагу кожній окремій деталі у звіті.",
+    "level": "B2"
+  },
+  {
+    "id": 8,
+    "word": "Ephemeral",
+    "ipa": "/ɪˈfem.ər.əl/",
+    "partOfSpeech": "adjective",
+    "translation": "ефемерний, скороминущий",
+    "exampleSentence": "Morning mist is ephemeral and disappears as soon as the sun rises.",
+    "exampleTranslation": "Ранковий туман скороминущий і зникає, щойно сходить сонце.",
+    "level": "C2"
+  },
+  {
+    "id": 9,
+    "word": "Pragmatic",
+    "ipa": "/præɡˈmæt.ɪk/",
+    "partOfSpeech": "adjective",
+    "translation": "прагматичний, практичний",
+    "exampleSentence": "We need a pragmatic approach rather than an idealistic vision.",
+    "exampleTranslation": "Нам потрібен практичний підхід, а не ідеалістичне бачення.",
+    "level": "B2"
+  },
+  {
+    "id": 10,
+    "word": "Versatile",
+    "ipa": "/ˈvɜː.sə.taɪl/",
+    "partOfSpeech": "adjective",
+    "translation": "універсальний, різнобічний",
+    "exampleSentence": "This software tool is versatile enough for beginners and experts alike.",
+    "exampleTranslation": "Цей програмний інструмент достатньо універсальний як для початківців, так і для експертів.",
+    "level": "B2"
+  },
+  {
+    "id": 11,
+    "word": "Accomplish",
+    "ipa": "/əˈkʌm.plɪʃ/",
+    "partOfSpeech": "verb",
+    "translation": "досягати, виконувати",
+    "exampleSentence": "Together we can accomplish far more than working individually.",
+    "exampleTranslation": "Разом ми можемо досягти значно більшого, ніж працюючи поодинці.",
+    "level": "B1"
+  },
+  {
+    "id": 12,
+    "word": "Empathy",
+    "ipa": "/ˈem.pə.θi/",
+    "partOfSpeech": "noun",
+    "translation": "емпатія, співпереживання",
+    "exampleSentence": "Empathy is an essential quality for any effective team leader.",
+    "exampleTranslation": "Емпатія — це важлива риса для будь-якого ефективного лідера команди.",
+    "level": "B2"
+  },
+  {
+    "id": 13,
+    "word": "Insightful",
+    "ipa": "/ˈɪn.saɪt.fəl/",
+    "partOfSpeech": "adjective",
+    "translation": "проникливий, глибокий",
+    "exampleSentence": "The mentor shared an insightful observation about our product.",
+    "exampleTranslation": "Наставник поділився проникливим спостереженням щодо нашого продукту.",
+    "level": "B2"
+  },
+  {
+    "id": 14,
+    "word": "Subtle",
+    "ipa": "/ˈsʌt.əl/",
+    "partOfSpeech": "adjective",
+    "translation": "тонкий, ледь помітний",
+    "exampleSentence": "There is a subtle difference in meaning between these two synonyms.",
+    "exampleTranslation": "Між цими двома синонімами є тонка різниця у значенні.",
+    "level": "B2"
+  },
+  {
+    "id": 15,
+    "word": "Comprehend",
+    "ipa": "/ˌkɒm.prɪˈhend/",
+    "partOfSpeech": "verb",
+    "translation": "осягати, розуміти",
+    "exampleSentence": "It took several reads to fully comprehend the scientific concept.",
+    "exampleTranslation": "Знадобилося кілька прочитань, щоб повністю осягнути цю наукову концепцію.",
+    "level": "B2"
+  },
+  {
+    "id": 16,
+    "word": "Cognitive",
+    "ipa": "/ˈkɒɡ.nə.tɪv/",
+    "partOfSpeech": "adjective",
+    "translation": "когнітивний, пізнавальний",
+    "exampleSentence": "Regular reading enhances memory and prevents cognitive decline.",
+    "exampleTranslation": "Регулярне читання покращує пам'ять і запобігає погіршенню когнітивних функцій.",
+    "level": "B2"
+  },
+  {
+    "id": 17,
+    "word": "Diligence",
+    "ipa": "/ˈdɪl.ɪ.dʒəns/",
+    "partOfSpeech": "noun",
+    "translation": "старанність, ретельність",
+    "exampleSentence": "His diligence in studying foreign languages earned him top grades.",
+    "exampleTranslation": "Його старанність у вивченні іноземних мов принесла йому найвищі оцінки.",
+    "level": "B2"
+  },
+  {
+    "id": 18,
+    "word": "Unravel",
+    "ipa": "/ʌnˈræv.əl/",
+    "partOfSpeech": "verb",
+    "translation": "розплутувати, розкривати",
+    "exampleSentence": "Scientists are working hard to unravel the mysteries of deep oceans.",
+    "exampleTranslation": "Вчені наполегливо працюють, щоб розкрити таємниці глибоких океанів.",
+    "level": "C1"
+  },
+  {
+    "id": 19,
+    "word": "Inevitable",
+    "ipa": "/ɪˈnev.ɪ.tə.bəl/",
+    "partOfSpeech": "adjective",
+    "translation": "неминучий, невідворотний",
+    "exampleSentence": "Mistakes are inevitable when you step out of your comfort zone.",
+    "exampleTranslation": "Помилки неминучі, коли ви виходите із зони комфорту.",
+    "level": "B2"
+  },
+  {
+    "id": 20,
+    "word": "Paradox",
+    "ipa": "/ˈpær.ə.dɒks/",
+    "partOfSpeech": "noun",
+    "translation": "парадокс, суперечність",
+    "exampleSentence": "It is an interesting paradox that resting can make you more productive.",
+    "exampleTranslation": "Це цікавий парадокс, що відпочинок може зробити вас більш продуктивними.",
+    "level": "B2"
+  },
+  {
+    "id": 21,
+    "word": "Crucial",
+    "ipa": "/ˈkruː.ʃəl/",
+    "partOfSpeech": "adjective",
+    "translation": "вирішальний, критично важливий",
+    "exampleSentence": "Consistent daily practice is crucial for mastering pronunciation.",
+    "exampleTranslation": "Постійна щоденна практика є вирішальною для опанування вимови.",
+    "level": "B1"
+  },
+  {
+    "id": 22,
+    "word": "Ubiquitous",
+    "ipa": "/juːˈbɪk.wɪ.təs/",
+    "partOfSpeech": "adjective",
+    "translation": "всюдисущий, повсюдний",
+    "exampleSentence": "Smartphones have become ubiquitous across all modern societies.",
+    "exampleTranslation": "Смартфони стали повсюдними у всіх сучасних суспільствах.",
+    "level": "C1"
+  },
+  {
+    "id": 23,
+    "word": "Illuminate",
+    "ipa": "/ɪˈluː.mɪ.neɪt/",
+    "partOfSpeech": "verb",
+    "translation": "освітлювати, роз'яснювати",
+    "exampleSentence": "This practical case study helps illuminate key grammatical rules.",
+    "exampleTranslation": "Цей практичний приклад допомагає роз'яснити ключові граматичні правила.",
+    "level": "B2"
+  },
+  {
+    "id": 24,
+    "word": "Authentic",
+    "ipa": "/ɔːˈθen.tɪk/",
+    "partOfSpeech": "adjective",
+    "translation": "автентичний, справжній",
+    "exampleSentence": "Listening to native podcasts provides rich, authentic speech examples.",
+    "exampleTranslation": "Прослуховування подкастів носіїв мови дає багаті, справжні зразки мовлення.",
+    "level": "B2"
+  },
+  {
+    "id": 25,
+    "word": "Vulnerable",
+    "ipa": "/ˈvʌl.nər.ə.bəl/",
+    "partOfSpeech": "adjective",
+    "translation": "вразливий, незахищений",
+    "exampleSentence": "Sharing your personal creative work can make you feel vulnerable.",
+    "exampleTranslation": "Коли ви ділитеся власною творчістю, це може змусити вас почуватися вразливим.",
+    "level": "B2"
+  },
+  {
+    "id": 26,
+    "word": "Foster",
+    "ipa": "/ˈfɒs.tər/",
+    "partOfSpeech": "verb",
+    "translation": "сприяти, заохочувати, плекати",
+    "exampleSentence": "Collaborative study groups foster greater motivation and confidence.",
+    "exampleTranslation": "Спільні навчальні групи сприяють підвищенню мотивації та впевненості.",
+    "level": "B2"
+  },
+  {
+    "id": 27,
+    "word": "Discrepancy",
+    "ipa": "/dɪˈskrep.ən.si/",
+    "partOfSpeech": "noun",
+    "translation": "розбіжність, невідповідність",
+    "exampleSentence": "The accountant noticed a slight discrepancy between the two balance sheets.",
+    "exampleTranslation": "Бухгалтер помітив незначну розбіжність між двома балансовими звітами.",
+    "level": "C1"
+  },
+  {
+    "id": 28,
+    "word": "Coherent",
+    "ipa": "/kəʊˈhɪə.rənt/",
+    "partOfSpeech": "adjective",
+    "translation": "зв'язний, послідовний, зрозумілий",
+    "exampleSentence": "Try to construct a coherent argument supported by verifiable facts.",
+    "exampleTranslation": "Спробуйте побудувати зв'язний аргумент, підтверджений перевіреними фактами.",
+    "level": "B2"
+  },
+  {
+    "id": 29,
+    "word": "Pivotal",
+    "ipa": "/ˈpɪv.ə.təl/",
+    "partOfSpeech": "adjective",
+    "translation": "ключовий, поворотний",
+    "exampleSentence": "Learning English vocabulary played a pivotal role in her international career.",
+    "exampleTranslation": "Вивчення англійської лексики відіграло ключову роль у її міжнародній кар'єрі.",
+    "level": "B2"
+  },
+  {
+    "id": 30,
+    "word": "Articulate",
+    "ipa": "/ɑːˈtɪk.jə.lət/",
+    "partOfSpeech": "adjective",
+    "translation": "виразний, чіткий у мовленні",
+    "exampleSentence": "He is an articulate speaker capable of explaining technical concepts clearly.",
+    "exampleTranslation": "Він виразний промовець, здатний чітко пояснювати технічні концепції.",
+    "level": "B2"
+  },
+  {
+    "id": 31,
+    "word": "Enhance",
+    "ipa": "/ɪnˈhɑːns/",
+    "partOfSpeech": "verb",
+    "translation": "покращувати, посилювати",
+    "exampleSentence": "Regular spaced repetition can greatly enhance vocabulary retention.",
+    "exampleTranslation": "Регулярні інтервальні повторення можуть суттєво покращити запам'ятовування слів.",
+    "level": "B1"
+  },
+  {
+    "id": 32,
+    "word": "Candid",
+    "ipa": "/ˈkæn.dɪd/",
+    "partOfSpeech": "adjective",
+    "translation": "щирий, відвертий, прямий",
+    "exampleSentence": "Thank you for your candid feedback; it will help us improve.",
+    "exampleTranslation": "Дякую за ваш відвертий відгук; це допоможе нам стати кращими.",
+    "level": "B2"
+  },
+  {
+    "id": 33,
+    "word": "Abundance",
+    "ipa": "/əˈbʌn.dəns/",
+    "partOfSpeech": "noun",
+    "translation": "достаток, велика кількість",
+    "exampleSentence": "The internet provides an abundance of free educational resources.",
+    "exampleTranslation": "Інтернет надає велику кількість безкоштовних освітніх ресурсів.",
+    "level": "B2"
+  },
+  {
+    "id": 34,
+    "word": "Reckon",
+    "ipa": "/ˈrek.ən/",
+    "partOfSpeech": "verb",
+    "translation": "вважати, гадати, розраховувати",
+    "exampleSentence": "I reckon we will finish this module well ahead of schedule.",
+    "exampleTranslation": "Я вважаю, що ми завершимо цей модуль значно раніше графіка.",
+    "level": "B1"
+  },
+  {
+    "id": 35,
+    "word": "Quintessential",
+    "ipa": "/ˌkwɪn.tɪˈsen.ʃəl/",
+    "partOfSpeech": "adjective",
+    "translation": "найбільш типовий, класичний",
+    "exampleSentence": "Afternoon tea is considered the quintessential British tradition.",
+    "exampleTranslation": "Післяобідній чай вважається класичною британською традицією.",
+    "level": "C1"
+  },
+  {
+    "id": 36,
+    "word": "Feasible",
+    "ipa": "/ˈfiː.zə.bəl/",
+    "partOfSpeech": "adjective",
+    "translation": "здійсненний, реалістичний",
+    "exampleSentence": "It is completely feasible to learn thirty new words every single week.",
+    "exampleTranslation": "Цілком реально вивчати тридцять нових слів щотижня.",
+    "level": "B2"
+  },
+  {
+    "id": 37,
+    "word": "Scrutinize",
+    "ipa": "/ˈskruː.tɪ.naɪz/",
+    "partOfSpeech": "verb",
+    "translation": "ретельно досліджувати, пильно розглядати",
+    "exampleSentence": "Always scrutinize contract terms before putting your signature down.",
+    "exampleTranslation": "Завжди пильно вивчайте умови контракту перед тим, як ставити підпис.",
+    "level": "C1"
+  },
+  {
+    "id": 38,
+    "word": "Harmonious",
+    "ipa": "/hɑːˈməʊ.ni.əs/",
+    "partOfSpeech": "adjective",
+    "translation": "гармонійний, злагоджений",
+    "exampleSentence": "Open communication creates a harmonious atmosphere in any team.",
+    "exampleTranslation": "Відкрите спілкування створює гармонійну атмосферу в будь-якій команді.",
+    "level": "B2"
+  },
+  {
+    "id": 39,
+    "word": "Endeavor",
+    "ipa": "/enˈdev.ər/",
+    "partOfSpeech": "noun",
+    "translation": "прагнення, починання, зусилля",
+    "exampleSentence": "We wish you great success in every new creative endeavor.",
+    "exampleTranslation": "Бажаємо вам великих успіхів у кожному новому творчому починанні.",
+    "level": "C1"
+  },
+  {
+    "id": 40,
+    "word": "Simultaneous",
+    "ipa": "/ˌsɪm.əlˈteɪ.ni.əs/",
+    "partOfSpeech": "adjective",
+    "translation": "одночасний, синхронний",
+    "exampleSentence": "The app offers simultaneous translation in real time.",
+    "exampleTranslation": "Додаток пропонує синхронний переклад у реальному часі.",
+    "level": "B2"
+  },
+  {
+    "id": 41,
+    "word": "Tedious",
+    "ipa": "/ˈtiː.di.əs/",
+    "partOfSpeech": "adjective",
+    "translation": "нудний, монотонний, виснажливий",
+    "exampleSentence": "Data entry is often a tedious task that requires strong patience.",
+    "exampleTranslation": "Введення даних — це часто нудна робота, що вимагає великого терпіння.",
+    "level": "B2"
+  },
+  {
+    "id": 42,
+    "word": "Inquisitive",
+    "ipa": "/ɪnˈkwɪz.ə.tɪv/",
+    "partOfSpeech": "adjective",
+    "translation": "допитливий, цікавий до знань",
+    "exampleSentence": "An inquisitive mind is the best driver for continuous learning.",
+    "exampleTranslation": "Допитливий розум — це найкращий рушій для безперервного навчання.",
+    "level": "B2"
+  },
+  {
+    "id": 43,
+    "word": "Profound",
+    "ipa": "/prəˈfaʊnd/",
+    "partOfSpeech": "adjective",
+    "translation": "глибокий, ґрунтовний",
+    "exampleSentence": "This philosophical book had a profound impact on my perspective.",
+    "exampleTranslation": "Ця філософська книга справила глибокий вплив на мої погляди.",
+    "level": "B2"
+  },
+  {
+    "id": 44,
+    "word": "Alleviate",
+    "ipa": "/əˈliː.vi.eɪt/",
+    "partOfSpeech": "verb",
+    "translation": "полегшувати, зменшувати біль/напругу",
+    "exampleSentence": "A short walk in the park can alleviate stress after work.",
+    "exampleTranslation": "Коротка прогулянка парком може полегшити стрес після роботи.",
+    "level": "C1"
+  },
+  {
+    "id": 45,
+    "word": "Conscientious",
+    "ipa": "/ˌkɒn.ʃiˈen.ʃəs/",
+    "partOfSpeech": "adjective",
+    "translation": "сумлінний, добросовісний",
+    "exampleSentence": "She is a conscientious student who never misses a deadline.",
+    "exampleTranslation": "Вона сумлінна студентка, яка ніколи не пропускає дедлайни.",
+    "level": "B2"
+  },
+  {
+    "id": 46,
+    "word": "Benchmark",
+    "ipa": "/ˈbentʃ.mɑːk/",
+    "partOfSpeech": "noun",
+    "translation": "орієнтир, еталон, критерій",
+    "exampleSentence": "This project sets a high quality benchmark for future products.",
+    "exampleTranslation": "Цей проєкт встановлює високий еталон якості для майбутніх продуктів.",
+    "level": "B2"
+  },
+  {
+    "id": 47,
+    "word": "Thrive",
+    "ipa": "/θraɪv/",
+    "partOfSpeech": "verb",
+    "translation": "процвітати, буйно розвиватися",
+    "exampleSentence": "Creative talents thrive in an encouraging and supportive environment.",
+    "exampleTranslation": "Творчі таланти процвітають у підтримуючому та надихаючому середовищі.",
+    "level": "B2"
+  },
+  {
+    "id": 48,
+    "word": "Strive",
+    "ipa": "/straɪv/",
+    "partOfSpeech": "verb",
+    "translation": "прагнути, докладати зусиль",
+    "exampleSentence": "Always strive for progress rather than perfection.",
+    "exampleTranslation": "Завжди прагніть до поступу, а не до недосяжної досконалості.",
+    "level": "B2"
+  },
+  {
+    "id": 49,
+    "word": "Surpass",
+    "ipa": "/səˈpɑːs/",
+    "partOfSpeech": "verb",
+    "translation": "перевершувати, випереджати",
+    "exampleSentence": "The actual quarterly results surpassed all preliminary expectations.",
+    "exampleTranslation": "Фактичні квартальні результати перевершили всі попередні очікування.",
+    "level": "C1"
+  },
+  {
+    "id": 50,
+    "word": "Fluency",
+    "ipa": "/ˈfluː.ən.si/",
+    "partOfSpeech": "noun",
+    "translation": "вільне володіння (мовою), плавність",
+    "exampleSentence": "Spoken fluency comes from daily immersion and speaking without fear.",
+    "exampleTranslation": "Вільне мовлення приходить завдяки щоденному зануренню та розмові без страху.",
+    "level": "B1"
+  },
+  {
+    "id": 51,
+    "word": "Intuition",
+    "ipa": "/ˌɪn.tʃuːˈɪʃ.ən/",
+    "partOfSpeech": "noun",
+    "translation": "інтуїція, внутрішнє чуття",
+    "exampleSentence": "Trust your intuition when navigating complex human relationships.",
+    "exampleTranslation": "Довіряйте своїй інтуїції при орієнтуванні у складних людських взаєминах.",
+    "level": "B2"
+  },
+  {
+    "id": 52,
+    "word": "Contemplate",
+    "ipa": "/ˈkɒn.təm.pleɪt/",
+    "partOfSpeech": "verb",
+    "translation": "обмірковувати, споглядати",
+    "exampleSentence": "Take a silent moment to contemplate your long-term goals.",
+    "exampleTranslation": "Знайдіть тиху хвилинку, щоб обміркувати свої довгострокові цілі.",
+    "level": "B2"
+  },
+  {
+    "id": 53,
+    "word": "Perception",
+    "ipa": "/pəˈsep.ʃən/",
+    "partOfSpeech": "noun",
+    "translation": "сприйняття, бачення",
+    "exampleSentence": "Learning another language broadens your perception of the world.",
+    "exampleTranslation": "Вивчення іншої мови розширює ваше сприйняття навколишнього світу.",
+    "level": "B2"
+  },
+  {
+    "id": 54,
+    "word": "Holistic",
+    "ipa": "/həʊˈlɪs.tɪk/",
+    "partOfSpeech": "adjective",
+    "translation": "цілісний, комплексний",
+    "exampleSentence": "We adopt a holistic view covering pronunciation, vocabulary, and grammar.",
+    "exampleTranslation": "Ми застосовуємо комплексний підхід, що охоплює вимову, лексику та граматику.",
+    "level": "C1"
+  },
+  {
+    "id": 55,
+    "word": "Proactive",
+    "ipa": "/prəʊˈæk.tɪv/",
+    "partOfSpeech": "adjective",
+    "translation": "ініціативний, проактивний",
+    "exampleSentence": "Being proactive about your education opens up international opportunities.",
+    "exampleTranslation": "Ініціативне ставлення до власної освіти відкриває міжнародні можливості.",
+    "level": "B2"
+  }
+]

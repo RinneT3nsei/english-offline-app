@@ -1,0 +1,25 @@
+{
+  "name": "offline-english",
+  "version": "1.0.0",
+  "description": "Offline English vocabulary and phrases learning Android app with IPA transcription",
+  "main": "www/index.html",
+  "scripts": {
+    "cap:sync": "cap sync",
+    "cap:add:android": "cap add android",
+    "cap:open:android": "cap open android"
+  },
+  "keywords": [
+    "english",
+    "offline",
+    "ipa",
+    "capacitor",
+    "android"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/core": "^6.0.0"
+  }
+}

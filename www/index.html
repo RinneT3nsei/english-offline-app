@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0a0e17">
+  <title>Offline English Vocabulary</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header with search and filter -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            <path d="M9 7h6"></path>
+            <path d="M9 11h6"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">Offline English</h1>
+          <span class="brand-subtitle">IPA &amp; Context Phrases</span>
+        </div>
+      </div>
+
+      <!-- Accent voice indicator / selector -->
+      <div class="voice-picker" id="voiceToggleBtn" title="Змінити акцент вимови">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        </svg>
+        <span id="currentAccent">en-US</span>
+      </div>
+    </div>
+
+    <!-- Live Search Bar -->
+    <div class="search-container">
+      <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input 
+          type="search" 
+          id="searchInput" 
+          placeholder="Пошук за словом чи перекладом..." 
+          autocomplete="off" 
+          spellcheck="false"
+          enterkeyhint="search"
+        >
+        <button id="clearSearchBtn" class="clear-btn" aria-label="Очистити пошук" hidden>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Quick Part-of-speech tabs -->
+      <div class="filter-chips" id="filterChips">
+        <button class="chip active" data-pos="all">Всі <span class="chip-count" id="countAll">0</span></button>
+        <button class="chip" data-pos="noun">Іменники</button>
+        <button class="chip" data-pos="verb">Дієслова</button>
+        <button class="chip" data-pos="adjective">Прикметники</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Cards Area -->
+  <main class="main-content">
+    <div class="status-bar">
+      <span id="resultsCount">Завантаження словника...</span>
+      <span class="offline-badge">
+        <span class="dot"></span> 100% Offline
+      </span>
+    </div>
+
+    <div id="cardsList" class="cards-list">
+      <!-- Cards rendered dynamically via JS -->
+    </div>
+
+    <div id="emptyState" class="empty-state" hidden>
+      <div class="empty-icon">🔍</div>
+      <p class="empty-title">Нічого не знайдено</p>
+      <p class="empty-desc">Спробуйте змінити пошуковий запит або скинути фільтри</p>
+      <button id="resetFilterBtn" class="reset-btn">Скинути пошук</button>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

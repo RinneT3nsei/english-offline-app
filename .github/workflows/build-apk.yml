@@ -20,43 +20,30 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
 
-      - name: Set up Java JDK 17
+      - name: Set up Java JDK 17 (Zulu)
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           java-version: '17'
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install dependencies
-        run: npm ci || npm install
-
-      - name: Add Android platform (if not exists)
+      - name: Install dependencies & initialize Android platform
         run: |
-          if [ ! -d "android" ]; then
-            npx cap add android
-          fi
-
-      - name: Sync web assets with Capacitor
-        run: npx cap sync android
+          npm install
+          npx cap add android || true
+          npx cap sync android
 
       - name: Build Android Debug APK
-        working-directory: android
         run: |
-          chmod +x gradlew
-          ./gradlew assembleDebug --stacktrace
-
-      - name: Verify APK was created
-        run: |
-          ls -la android/app/build/outputs/apk/debug/
+          cd android && chmod +x gradlew && ./gradlew assembleDebug
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug
+          name: Offline-English-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30

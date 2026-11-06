@@ -14,7 +14,7 @@
   - Окрема кнопка **"Фраза"** (озвучує повне речення у природному ритмі).
   - Підтримка перемикання акцентів `en-US` та `en-GB`.
 - **База слів**: 55 ретельно дібраних якісних слів рівнів B1–C2 з реальними прикладами вживання та перекладом (`www/assets/dictionary.json`).
-- **CI/CD Автоматизація**: готовий робочий процес GitHub Actions (`.github/workflows/build-apk.yml`), який самостійно збирає `app-debug.apk` на Ubuntu, Java 17 та Android SDK.
+- **CI/CD Автоматизація**: готовий робочий процес GitHub Actions (`.github/workflows/build-apk.yml`), який самостійно збирає `Offline-English-APK` на Ubuntu, Java 17 (Zulu) та Android SDK.
 
 ---
 
@@ -77,4 +77,4 @@ cd android
 1. Завантажте цей репозиторій на GitHub (`git push origin main`).
 2. Перейдіть на вкладку **Actions** вашого GitHub репозиторію.
 3. Оберіть workflow **Build Android APK** та натисніть кнопку **Run workflow** (або він запуститься автоматично при push).
-4. Після завершення роботи у розділі **Artifacts** завантажте готовий `app-debug.apk` і встановіть його на свій Android-смартфон.
+4. Після завершення роботи у розділі **Artifacts** завантажте готовий `Offline-English-APK` і встановіть його на свій Android-смартфон.

@@ -68,18 +68,19 @@
         <button class="chip" data-pos="verb">Дієслова</button>
         <button class="chip" data-pos="adjective">Прикметники</button>
       </div>
+
+      <!-- Persistent Status & Results Count Bar -->
+      <div class="status-bar">
+        <span id="resultsCount">Завантаження словника...</span>
+        <span class="offline-badge">
+          <span class="dot"></span> Piper INT8 Offline
+        </span>
+      </div>
     </div>
   </header>
 
   <!-- Main Content Cards Area -->
   <main class="main-content">
-    <div class="status-bar">
-      <span id="resultsCount">Завантаження словника...</span>
-      <span class="offline-badge">
-        <span class="dot"></span> 100% Offline
-      </span>
-    </div>
-
     <div id="cardsList" class="cards-list">
       <!-- Cards rendered dynamically via JS -->
     </div>

@@ -30,22 +30,24 @@ jobs:
         run: |
           mkdir -p www/assets/tts
           
-          # Download en_US Lessac model if missing
+          # Download en_US Lessac INT8 model if missing
           if [ ! -f "www/assets/tts/en_US-lessac-medium.onnx" ]; then
-            echo "Downloading en_US Lessac ONNX model..."
-            curl -L -o www/assets/tts/en_US-lessac-medium.onnx "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx"
-          fi
-          if [ ! -f "www/assets/tts/en_US-lessac-medium.onnx.json" ]; then
-            curl -L -o www/assets/tts/en_US-lessac-medium.onnx.json "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx.json"
+            echo "Downloading en_US Lessac INT8 ONNX model..."
+            curl -L -o lessac-int8.tar.bz2 "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-piper-en_US-lessac-medium-int8.tar.bz2"
+            tar -xvf lessac-int8.tar.bz2
+            cp vits-piper-en_US-lessac-medium-int8/en_US-lessac-medium.onnx www/assets/tts/
+            cp vits-piper-en_US-lessac-medium-int8/en_US-lessac-medium.onnx.json www/assets/tts/
+            rm -rf lessac-int8.tar.bz2 vits-piper-en_US-lessac-medium-int8
           fi
 
-          # Download en_GB Alan model if missing
+          # Download en_GB Alan INT8 model if missing
           if [ ! -f "www/assets/tts/en_GB-alan-medium.onnx" ]; then
-            echo "Downloading en_GB Alan ONNX model..."
-            curl -L -o www/assets/tts/en_GB-alan-medium.onnx "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_GB/alan/medium/en_GB-alan-medium.onnx"
-          fi
-          if [ ! -f "www/assets/tts/en_GB-alan-medium.onnx.json" ]; then
-            curl -L -o www/assets/tts/en_GB-alan-medium.onnx.json "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_GB/alan/medium/en_GB-alan-medium.onnx.json"
+            echo "Downloading en_GB Alan INT8 ONNX model..."
+            curl -L -o alan-int8.tar.bz2 "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-piper-en_GB-alan-medium-int8.tar.bz2"
+            tar -xvf alan-int8.tar.bz2
+            cp vits-piper-en_GB-alan-medium-int8/en_GB-alan-medium.onnx www/assets/tts/
+            cp vits-piper-en_GB-alan-medium-int8/en_GB-alan-medium.onnx.json www/assets/tts/
+            rm -rf alan-int8.tar.bz2 vits-piper-en_GB-alan-medium-int8
           fi
 
           # Download ONNX Runtime Web files if missing

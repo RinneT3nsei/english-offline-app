@@ -6,17 +6,17 @@
 (function () {
   'use strict';
 
-  // Piper TTS Models Configuration
+  // Piper TTS Models Configuration (INT8 Quantized Models)
   const PIPER_MODELS = {
     'en-US': {
       id: 'en-US',
-      label: 'US (Lessac)',
+      label: 'US (Lessac INT8)',
       modelPath: 'assets/tts/en_US-lessac-medium.onnx',
       configPath: 'assets/tts/en_US-lessac-medium.onnx.json'
     },
     'en-GB': {
       id: 'en-GB',
-      label: 'UK (Alan)',
+      label: 'UK (Alan INT8)',
       modelPath: 'assets/tts/en_GB-alan-medium.onnx',
       configPath: 'assets/tts/en_GB-alan-medium.onnx.json'
     }
@@ -81,6 +81,11 @@
         activeAudioSource.disconnect();
       } catch (_) {}
       activeAudioSource = null;
+    }
+    document.querySelectorAll('.word-card.is-active-card').forEach(c => c.classList.remove('is-active-card'));
+    if (state.activeSpeechButton) {
+      state.activeSpeechButton.classList.remove('is-speaking');
+      state.activeSpeechButton = null;
     }
   }
 
@@ -245,6 +250,7 @@
 
     stopAudio();
 
+    let cardElement = null;
     if (state.activeSpeechButton) {
       state.activeSpeechButton.classList.remove('is-speaking');
       state.activeSpeechButton = null;
@@ -253,11 +259,19 @@
     if (buttonElement) {
       state.activeSpeechButton = buttonElement;
       buttonElement.classList.add('is-speaking');
+      cardElement = buttonElement.closest('.word-card');
+      if (cardElement) {
+        document.querySelectorAll('.word-card.is-active-card').forEach(c => c.classList.remove('is-active-card'));
+        cardElement.classList.add('is-active-card');
+      }
     }
 
     const cleanup = () => {
       if (buttonElement) {
         buttonElement.classList.remove('is-speaking');
+      }
+      if (cardElement) {
+        cardElement.classList.remove('is-active-card');
       }
       if (state.activeSpeechButton === buttonElement) {
         state.activeSpeechButton = null;

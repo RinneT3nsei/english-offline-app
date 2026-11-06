@@ -55,29 +55,30 @@ html, body {
 }
 
 /* ==========================================================================
-   Header & Search Bar (Sticky Top)
+   Header & Navigation Control Panel (Sticky Top with Safe Area)
    ========================================================================== */
 
 .app-header {
   position: sticky;
   top: 0;
-  z-index: 100;
-  background: rgba(11, 17, 32, 0.92);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--border-color);
-  padding-top: max(12px, env(safe-area-inset-top));
+  z-index: 1000;
+  background: rgba(10, 14, 23, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.65);
+  padding-top: max(14px, env(safe-area-inset-top));
   padding-left: max(16px, env(safe-area-inset-left));
   padding-right: max(16px, env(safe-area-inset-right));
-  padding-bottom: 12px;
-  transition: box-shadow 0.2s ease;
+  padding-bottom: 10px;
+  transition: all 0.25s ease;
 }
 
 .header-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .brand {
@@ -96,6 +97,7 @@ html, body {
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+  flex-shrink: 0;
 }
 
 .brand-title {
@@ -118,23 +120,25 @@ html, body {
 .voice-picker {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
+  gap: 7px;
+  padding: 7px 14px;
   border-radius: var(--radius-pill);
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  color: var(--accent-cyan);
-  font-size: 0.8rem;
+  background: rgba(30, 41, 66, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #ffffff;
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
   user-select: none;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .voice-picker:active {
-  transform: scale(0.96);
-  background: var(--bg-card-hover);
+  transform: scale(0.94);
+  background: rgba(56, 189, 248, 0.2);
   border-color: var(--accent-cyan);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
 }
 
 /* Search Box */
@@ -268,9 +272,13 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
-  padding: 0 4px;
-  font-size: 0.8rem;
+  margin-top: 6px;
+  margin-bottom: 2px;
+  padding-top: 8px;
+  padding-left: 2px;
+  padding-right: 2px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.78rem;
   color: var(--text-secondary);
 }
 
@@ -280,7 +288,7 @@ html, body {
   gap: 6px;
   color: var(--accent-emerald);
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: 0.74rem;
 }
 
 .offline-badge .dot {
@@ -310,9 +318,26 @@ html, body {
   flex-direction: column;
   gap: 12px;
   box-shadow: var(--shadow-sm);
-  transition: transform 0.15s ease, border-color 0.2s ease, background-color 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+              border-color 0.25s ease, 
+              box-shadow 0.25s ease, 
+              background-color 0.25s ease;
   position: relative;
   overflow: hidden;
+}
+
+/* Active card highlight when TTS is playing */
+.word-card.is-active-card {
+  border-color: var(--accent-cyan);
+  background: linear-gradient(145deg, #131d33, #152545);
+  box-shadow: 0 4px 22px rgba(56, 189, 248, 0.28);
+  transform: translateY(-2px);
+}
+
+.word-card.is-active-card::before {
+  opacity: 1;
+  width: 5px;
+  box-shadow: 0 0 12px var(--accent-cyan);
 }
 
 .word-card::before {
@@ -430,31 +455,61 @@ html, body {
   line-height: 1.4;
 }
 
-/* Buttons for speech */
+/* Buttons for speech with ripple & smooth press animation */
 .card-actions {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
 .speech-btn {
+  position: relative;
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  height: 38px;
-  padding: 0 14px;
+  gap: 7px;
+  height: 40px;
+  padding: 0 16px;
   border-radius: var(--radius-md);
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   font-weight: 600;
   border: 1px solid var(--border-subtle);
   background: var(--bg-surface);
   color: var(--text-primary);
   cursor: pointer;
   user-select: none;
-  transition: all 0.15s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   outline: none;
+}
+
+/* Material-style ripple effect */
+.speech-btn::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: width 0.35s ease-out, height 0.35s ease-out, opacity 0.35s ease-out;
+  pointer-events: none;
+}
+
+.speech-btn:active::after {
+  width: 140px;
+  height: 140px;
+  opacity: 1;
+  transition: 0s;
+}
+
+.speech-btn:active {
+  transform: scale(0.94);
+  filter: brightness(1.2);
 }
 
 .speech-btn.btn-word {
@@ -463,37 +518,47 @@ html, body {
   color: var(--accent-cyan);
 }
 
-.speech-btn.btn-phrase {
-  background: var(--bg-surface);
-  border-color: var(--border-subtle);
-  color: var(--text-secondary);
-}
-
-.speech-btn:hover {
-  background: var(--bg-card-hover);
-  color: #ffffff;
-}
-
-.speech-btn:active {
-  transform: scale(0.96);
+.speech-btn.btn-word:hover {
+  background: rgba(56, 189, 248, 0.22);
 }
 
 .speech-btn.btn-word:active {
-  background: rgba(56, 189, 248, 0.25);
+  background: rgba(56, 189, 248, 0.38);
 }
 
-/* Speaking State Animation */
+.speech-btn.btn-phrase {
+  background: rgba(129, 140, 248, 0.12);
+  border-color: rgba(129, 140, 248, 0.35);
+  color: var(--accent-indigo);
+}
+
+.speech-btn.btn-phrase:hover {
+  background: rgba(129, 140, 248, 0.22);
+}
+
+.speech-btn.btn-phrase:active {
+  background: rgba(129, 140, 248, 0.38);
+}
+
+/* Speaking State Animation with Neon Glow */
 .speech-btn.is-speaking {
   background: linear-gradient(135deg, #0284c7, #6366f1) !important;
   color: #ffffff !important;
   border-color: transparent !important;
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.65) !important;
+  transform: scale(1.02);
   animation: pulseGlow 1.2s infinite alternate;
 }
 
 @keyframes pulseGlow {
-  0% { transform: scale(0.98); opacity: 0.9; }
-  100% { transform: scale(1.02); opacity: 1; }
+  0% { 
+    transform: scale(0.99); 
+    box-shadow: 0 0 8px rgba(56, 189, 248, 0.4); 
+  }
+  100% { 
+    transform: scale(1.03); 
+    box-shadow: 0 0 18px rgba(99, 102, 241, 0.85); 
+  }
 }
 
 /* ==========================================================================

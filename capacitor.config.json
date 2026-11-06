@@ -2,7 +2,9 @@
   "appId": "com.offline.english",
   "appName": "Offline English",
   "webDir": "www",
-  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  },
   "android": {
     "allowMixedContent": true
   }

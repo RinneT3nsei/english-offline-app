@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          lfs: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -24,6 +26,41 @@ jobs:
           distribution: 'zulu'
           java-version: '21'
 
+      - name: Ensure Piper TTS models and ONNX WebAssembly are present
+        run: |
+          mkdir -p www/assets/tts
+          
+          # Download en_US Lessac model if missing
+          if [ ! -f "www/assets/tts/en_US-lessac-medium.onnx" ]; then
+            echo "Downloading en_US Lessac ONNX model..."
+            curl -L -o www/assets/tts/en_US-lessac-medium.onnx "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx"
+          fi
+          if [ ! -f "www/assets/tts/en_US-lessac-medium.onnx.json" ]; then
+            curl -L -o www/assets/tts/en_US-lessac-medium.onnx.json "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx.json"
+          fi
+
+          # Download en_GB Alan model if missing
+          if [ ! -f "www/assets/tts/en_GB-alan-medium.onnx" ]; then
+            echo "Downloading en_GB Alan ONNX model..."
+            curl -L -o www/assets/tts/en_GB-alan-medium.onnx "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_GB/alan/medium/en_GB-alan-medium.onnx"
+          fi
+          if [ ! -f "www/assets/tts/en_GB-alan-medium.onnx.json" ]; then
+            curl -L -o www/assets/tts/en_GB-alan-medium.onnx.json "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_GB/alan/medium/en_GB-alan-medium.onnx.json"
+          fi
+
+          # Download ONNX Runtime Web files if missing
+          if [ ! -f "www/assets/tts/ort.min.js" ]; then
+            curl -L -o www/assets/tts/ort.min.js "https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"
+          fi
+          if [ ! -f "www/assets/tts/ort-wasm-simd.wasm" ]; then
+            curl -L -o www/assets/tts/ort-wasm-simd.wasm "https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort-wasm-simd.wasm"
+          fi
+          if [ ! -f "www/assets/tts/ort-wasm.wasm" ]; then
+            curl -L -o www/assets/tts/ort-wasm.wasm "https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort-wasm.wasm"
+          fi
+
+          ls -lh www/assets/tts/
+
       - name: Install dependencies
         run: npm install
 
@@ -33,6 +70,8 @@ jobs:
           npx cap sync android
 
       - name: Build Android APK
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m"
         run: |
           cd android
           chmod +x gradlew

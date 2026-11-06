@@ -1,10 +1,26 @@
 /**
  * Offline English Vocabulary App
- * Pure Vanilla JavaScript - 100% Offline with Web Speech API
+ * 100% Offline with Piper Neural TTS via ONNX Runtime WebAssembly & Web Audio API
  */
 
 (function () {
   'use strict';
+
+  // Piper TTS Models Configuration
+  const PIPER_MODELS = {
+    'en-US': {
+      id: 'en-US',
+      label: 'US (Lessac)',
+      modelPath: 'assets/tts/en_US-lessac-medium.onnx',
+      configPath: 'assets/tts/en_US-lessac-medium.onnx.json'
+    },
+    'en-GB': {
+      id: 'en-GB',
+      label: 'UK (Alan)',
+      modelPath: 'assets/tts/en_GB-alan-medium.onnx',
+      configPath: 'assets/tts/en_GB-alan-medium.onnx.json'
+    }
+  };
 
   // Application State
   const state = {
@@ -13,8 +29,12 @@
     searchQuery: '',
     selectedPos: 'all',
     preferredAccent: 'en-US', // 'en-US' or 'en-GB'
-    availableVoices: [],
-    activeSpeechButton: null
+    activeSpeechButton: null,
+
+    // Neural TTS Caches
+    ttsSessions: {},
+    ttsConfigs: {},
+    isInitializingTTS: false
   };
 
   // DOM Elements
@@ -38,26 +58,192 @@
   };
 
   // ---------------------------------------------------------------------------
-  // Text-To-Speech Controller (Capacitor Native TTS with Web Speech fallback)
+  // Web Audio API Controller
   // ---------------------------------------------------------------------------
-  function initSpeech() {
-    if ('speechSynthesis' in window) {
-      const loadVoices = () => {
-        state.availableVoices = window.speechSynthesis.getVoices();
-      };
-      loadVoices();
-      if (window.speechSynthesis.onvoiceschanged !== undefined) {
-        window.speechSynthesis.onvoiceschanged = loadVoices;
-      }
+  let audioCtx = null;
+  let activeAudioSource = null;
+
+  function getAudioContext(sampleRate = 22050) {
+    if (!audioCtx || audioCtx.state === 'closed') {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AudioContextClass({ sampleRate });
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    return audioCtx;
+  }
+
+  function stopAudio() {
+    if (activeAudioSource) {
+      try {
+        activeAudioSource.stop();
+        activeAudioSource.disconnect();
+      } catch (_) {}
+      activeAudioSource = null;
     }
   }
 
-  async function speakText(text, lang = state.preferredAccent, buttonElement = null) {
-    // If button was passed as 2nd arg by mistake, handle gracefully
-    if (typeof lang === 'object' && lang !== null && !buttonElement) {
-      buttonElement = lang;
-      lang = state.preferredAccent;
+  function playPcmAudio(float32Samples, sampleRate = 22050, onEndCallback) {
+    stopAudio();
+    const ctx = getAudioContext(sampleRate);
+    const audioBuffer = ctx.createBuffer(1, float32Samples.length, sampleRate);
+    audioBuffer.getChannelData(0).set(float32Samples);
+
+    const source = ctx.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(ctx.destination);
+
+    source.onended = () => {
+      activeAudioSource = null;
+      if (onEndCallback) onEndCallback();
+    };
+
+    activeAudioSource = source;
+    source.start(0);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Piper Neural TTS Engine (ONNX Runtime WebAssembly)
+  // ---------------------------------------------------------------------------
+  function initOnnxEnvironment() {
+    if (typeof ort !== 'undefined') {
+      // Point ONNX Runtime Web to local WASM binaries
+      ort.env.wasm.wasmPaths = 'assets/tts/';
+      ort.env.wasm.numThreads = 1;
+      ort.env.wasm.simd = true;
     }
+  }
+
+  async function loadPiperModel(accent) {
+    if (state.ttsSessions[accent]) {
+      return state.ttsSessions[accent];
+    }
+
+    const modelDef = PIPER_MODELS[accent] || PIPER_MODELS['en-US'];
+
+    // 1. Fetch JSON config
+    if (!state.ttsConfigs[accent]) {
+      const configRes = await fetch(modelDef.configPath);
+      if (!configRes.ok) throw new Error(`Failed to load config: ${configRes.statusText}`);
+      state.ttsConfigs[accent] = await configRes.json();
+    }
+
+    // 2. Initialize ONNX session
+    if (typeof ort === 'undefined') {
+      throw new Error('ONNX Runtime Web is not loaded');
+    }
+
+    const sessionOptions = {
+      executionProviders: ['wasm'],
+      graphOptimizationLevel: 'all'
+    };
+
+    const session = await ort.InferenceSession.create(modelDef.modelPath, sessionOptions);
+    state.ttsSessions[accent] = {
+      session,
+      config: state.ttsConfigs[accent]
+    };
+
+    return state.ttsSessions[accent];
+  }
+
+  /**
+   * Convert text / IPA into Piper phoneme ID tensor inputs
+   */
+  function textToPhonemeSequence(text, phonemeIdMap, ipa = null) {
+    const pad = phonemeIdMap['_'] ? phonemeIdMap['_'][0] : 0;
+    const bos = phonemeIdMap['^'] ? phonemeIdMap['^'][0] : 1;
+    const eos = phonemeIdMap['$'] ? phonemeIdMap['$'][0] : 2;
+    const space = phonemeIdMap[' '] ? phonemeIdMap[' '][0] : 3;
+
+    let tokenIds = [];
+
+    // If word has exact IPA transcription, prioritize IPA symbols
+    if (ipa && typeof ipa === 'string') {
+      const cleanIpa = ipa.replace(/[\/\.]/g, '').trim();
+      for (const char of cleanIpa) {
+        if (phonemeIdMap[char]) {
+          tokenIds.push(phonemeIdMap[char][0]);
+        } else if (phonemeIdMap[char.toLowerCase()]) {
+          tokenIds.push(phonemeIdMap[char.toLowerCase()][0]);
+        }
+      }
+    }
+
+    // Fallback or sentence character-level token mapping
+    if (tokenIds.length === 0) {
+      const normalized = text.trim();
+      for (const char of normalized) {
+        const lower = char.toLowerCase();
+        if (phonemeIdMap[char]) {
+          tokenIds.push(phonemeIdMap[char][0]);
+        } else if (phonemeIdMap[lower]) {
+          tokenIds.push(phonemeIdMap[lower][0]);
+        } else if (char === ' ') {
+          tokenIds.push(space);
+        }
+      }
+    }
+
+    // Interleave tokens with pad ID: [bos, pad, tok1, pad, tok2, ..., pad, eos]
+    const sequence = [bos];
+    for (const id of tokenIds) {
+      sequence.push(pad);
+      sequence.push(id);
+    }
+    sequence.push(pad);
+    sequence.push(eos);
+
+    return sequence;
+  }
+
+  async function synthesizeWithPiper(text, accent, ipa = null) {
+    const { session, config } = await loadPiperModel(accent);
+
+    const sampleRate = (config.audio && config.audio.sample_rate) || 22050;
+    const noiseScale = (config.inference && config.inference.noise_scale) ?? 0.667;
+    const lengthScale = (config.inference && config.inference.length_scale) ?? 1.0;
+    const noiseW = (config.inference && config.inference.noise_w) ?? 0.8;
+
+    const phonemeIds = textToPhonemeSequence(text, config.phoneme_id_map, ipa);
+    const seqLen = phonemeIds.length;
+
+    // Create ONNX inputs
+    const inputTensor = new ort.Tensor('int64', BigInt64Array.from(phonemeIds.map(BigInt)), [1, seqLen]);
+    const inputLengthsTensor = new ort.Tensor('int64', BigInt64Array.from([BigInt(seqLen)]), [1]);
+    const scalesTensor = new ort.Tensor('float32', new Float32Array([noiseScale, lengthScale, noiseW]), [3]);
+
+    const feeds = {
+      input: inputTensor,
+      input_lengths: inputLengthsTensor,
+      scales: scalesTensor
+    };
+
+    if (session.inputNames.includes('sid')) {
+      feeds.sid = new ort.Tensor('int64', BigInt64Array.from([0n]), [1]);
+    }
+
+    const results = await session.run(feeds);
+    const outputTensor = results.output || results[session.outputNames[0]];
+
+    return {
+      audioData: outputTensor.data, // Float32Array PCM samples
+      sampleRate
+    };
+  }
+
+  // ---------------------------------------------------------------------------
+  // Unified Speech Controller with Piper WASM & Native Fallback
+  // ---------------------------------------------------------------------------
+  async function speakText(text, accent = state.preferredAccent, buttonElement = null, ipa = null) {
+    // Handle parameter shuffling
+    if (typeof accent === 'object' && accent !== null && !buttonElement) {
+      buttonElement = accent;
+      accent = state.preferredAccent;
+    }
+
+    stopAudio();
 
     if (state.activeSpeechButton) {
       state.activeSpeechButton.classList.remove('is-speaking');
@@ -79,45 +265,77 @@
     };
 
     try {
-      // 1. Native Capacitor TextToSpeech Plugin (Android WebView Offline)
-      if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.TextToSpeech) {
-        try {
-          await window.Capacitor.Plugins.TextToSpeech.stop();
-        } catch (_) {}
+      // 1. Primary: Fully embedded Piper Neural TTS via ONNX Runtime WebAssembly
+      if (typeof ort !== 'undefined') {
+        const { audioData, sampleRate } = await synthesizeWithPiper(text, accent, ipa);
+        playPcmAudio(audioData, sampleRate, cleanup);
+        return;
+      }
 
+      // 2. Secondary fallback: Capacitor Native Text-to-Speech plugin
+      if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.TextToSpeech) {
+        try { await window.Capacitor.Plugins.TextToSpeech.stop(); } catch (_) {}
         await window.Capacitor.Plugins.TextToSpeech.speak({
-          text: text,
-          lang: lang || 'en-US',
+          text,
+          lang: accent,
           rate: 0.9,
           pitch: 1.0,
           volume: 1.0,
           category: 'ambient',
         });
         cleanup();
-      } 
-      // 2. Fallback to Web Speech API in desktop browser
-      else if ('speechSynthesis' in window) {
+        return;
+      }
+
+      // 3. Tertiary fallback: Browser Web Speech API
+      if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(text);
-        u.lang = lang || 'en-US';
+        u.lang = accent;
         u.rate = 0.9;
-        u.pitch = 1.0;
         u.onend = cleanup;
         u.onerror = cleanup;
         window.speechSynthesis.speak(u);
-      } else {
-        console.warn('No TTS engine available in this environment');
-        cleanup();
+        return;
       }
+
+      console.warn('No audio synthesis engine available.');
+      cleanup();
     } catch (err) {
-      console.error('TTS error:', err);
+      console.warn('Piper TTS inference notice (falling back):', err);
+
+      // Attempt fallback if Piper model loading took extra time
+      if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.TextToSpeech) {
+        try {
+          await window.Capacitor.Plugins.TextToSpeech.speak({
+            text,
+            lang: accent,
+            rate: 0.9,
+            pitch: 1.0,
+            volume: 1.0
+          });
+        } catch (_) {}
+      } else if ('speechSynthesis' in window) {
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = accent;
+        u.onend = cleanup;
+        u.onerror = cleanup;
+        window.speechSynthesis.speak(u);
+        return;
+      }
       cleanup();
     }
   }
 
   function toggleVoiceAccent() {
     state.preferredAccent = state.preferredAccent === 'en-US' ? 'en-GB' : 'en-US';
-    el.currentAccent.textContent = state.preferredAccent;
+    const currentModel = PIPER_MODELS[state.preferredAccent];
+    el.currentAccent.textContent = currentModel.label;
+
+    // Pre-warm the newly selected model in background
+    if (typeof ort !== 'undefined') {
+      loadPiperModel(state.preferredAccent).catch(e => console.log('Preload:', e));
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -131,7 +349,6 @@
       state.dictionary = data;
     } catch (err) {
       console.warn('Could not load assets/dictionary.json via fetch, using fallback', err);
-      // Fallback data in case opened directly as file:// or if fetch is blocked
       state.dictionary = getFallbackDictionary();
     }
 
@@ -147,12 +364,9 @@
     const pos = state.selectedPos;
 
     state.filteredList = state.dictionary.filter(item => {
-      // Filter by Part of Speech
       if (pos !== 'all' && item.partOfSpeech.toLowerCase() !== pos) {
         return false;
       }
-
-      // Filter by Search query
       if (!query) return true;
 
       const wordMatch = item.word.toLowerCase().includes(query);
@@ -254,12 +468,12 @@
 
       wordBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        speakText(item.word, state.preferredAccent, wordBtn);
+        speakText(item.word, state.preferredAccent, wordBtn, item.ipa);
       });
 
       phraseBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        speakText(item.exampleSentence, state.preferredAccent, phraseBtn);
+        speakText(item.exampleSentence, state.preferredAccent, phraseBtn, null);
       });
 
       fragment.appendChild(card);
@@ -273,14 +487,12 @@
   // Event Bindings
   // ---------------------------------------------------------------------------
   function initEvents() {
-    // Search input
     el.searchInput.addEventListener('input', (e) => {
       state.searchQuery = e.target.value;
       el.clearSearchBtn.hidden = !state.searchQuery;
       applyFilterAndRender();
     });
 
-    // Clear search button
     el.clearSearchBtn.addEventListener('click', () => {
       state.searchQuery = '';
       el.searchInput.value = '';
@@ -289,7 +501,6 @@
       applyFilterAndRender();
     });
 
-    // Reset button in empty state
     el.resetFilterBtn.addEventListener('click', () => {
       state.searchQuery = '';
       state.selectedPos = 'all';
@@ -302,7 +513,6 @@
       applyFilterAndRender();
     });
 
-    // Filter Chips
     el.filterChips.addEventListener('click', (e) => {
       const chip = e.target.closest('.chip');
       if (!chip) return;
@@ -317,7 +527,6 @@
       applyFilterAndRender();
     });
 
-    // Accent voice switch
     el.voiceToggleBtn.addEventListener('click', () => {
       toggleVoiceAccent();
     });
@@ -344,7 +553,12 @@
   // ---------------------------------------------------------------------------
   // Bootstrapping
   // ---------------------------------------------------------------------------
-  initSpeech();
+  initOnnxEnvironment();
   initEvents();
   loadDictionary();
+
+  // Set default accent label
+  if (el.currentAccent) {
+    el.currentAccent.textContent = PIPER_MODELS[state.preferredAccent].label;
+  }
 })();

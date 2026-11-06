@@ -1,10 +1,13 @@
 /**
  * Offline English Vocabulary App
- * 100% Offline with Piper Neural TTS via ONNX Runtime WebAssembly & Web Audio API
+ * Material 3 (Material You) Design with Piper Neural TTS, Favorites & Blur Self-Testing
  */
 
 (function () {
   'use strict';
+
+  const STORAGE_KEY_FAVS = 'offline_english_favs';
+  const STORAGE_KEY_BLUR = 'offline_english_blur_mode';
 
   // Piper TTS Models Configuration (INT8 Quantized Models)
   const PIPER_MODELS = {
@@ -26,16 +29,26 @@
   const state = {
     dictionary: [],
     filteredList: [],
+    favorites: new Set(),
     searchQuery: '',
-    selectedPos: 'all',
-    preferredAccent: 'en-US', // 'en-US' or 'en-GB'
+    selectedFilter: 'all', // 'all', 'favorites', 'noun', 'verb', 'adjective'
+    isTrainingMode: localStorage.getItem(STORAGE_KEY_BLUR) === 'true',
     activeSpeechButton: null,
 
     // Neural TTS Caches
     ttsSessions: {},
-    ttsConfigs: {},
-    isInitializingTTS: false
+    ttsConfigs: {}
   };
+
+  // Load Saved Favorites from localStorage
+  try {
+    const rawFavs = localStorage.getItem(STORAGE_KEY_FAVS);
+    if (rawFavs) {
+      state.favorites = new Set(JSON.parse(rawFavs));
+    }
+  } catch (_) {
+    state.favorites = new Set();
+  }
 
   // DOM Elements
   const el = {
@@ -45,14 +58,18 @@
     filterChips: document.getElementById('filterChips'),
     resultsCount: document.getElementById('resultsCount'),
     countAll: document.getElementById('countAll'),
+    countFavs: document.getElementById('countFavs'),
     emptyState: document.getElementById('emptyState'),
-    resetFilterBtn: document.getElementById('resetFilterBtn')
+    resetFilterBtn: document.getElementById('resetFilterBtn'),
+    toggleAllBlurBtn: document.getElementById('toggleAllBlurBtn'),
+    blurModeLabel: document.getElementById('blurModeLabel')
   };
 
-  // Icon SVG Templates
+  // Icon SVG Templates (Material Symbols inspired)
   const ICONS = {
-    speaker: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>`,
-    quote: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>`
+    volume: `<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>`,
+    starOutline: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`,
+    starFilled: `<svg viewBox="0 0 24 24" width="20" height="20" fill="#facc15" stroke="#facc15" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`
   };
 
   // ---------------------------------------------------------------------------
@@ -111,7 +128,6 @@
   // ---------------------------------------------------------------------------
   function initOnnxEnvironment() {
     if (typeof ort !== 'undefined') {
-      // Point ONNX Runtime Web to local WASM binaries
       ort.env.wasm.wasmPaths = 'assets/tts/';
       ort.env.wasm.numThreads = 1;
       ort.env.wasm.simd = true;
@@ -125,14 +141,12 @@
 
     const modelDef = PIPER_MODELS[accent] || PIPER_MODELS['en-US'];
 
-    // 1. Fetch JSON config
     if (!state.ttsConfigs[accent]) {
       const configRes = await fetch(modelDef.configPath);
       if (!configRes.ok) throw new Error(`Failed to load config: ${configRes.statusText}`);
       state.ttsConfigs[accent] = await configRes.json();
     }
 
-    // 2. Initialize ONNX session
     if (typeof ort === 'undefined') {
       throw new Error('ONNX Runtime Web is not loaded');
     }
@@ -151,9 +165,6 @@
     return state.ttsSessions[accent];
   }
 
-  /**
-   * Convert text / IPA into Piper phoneme ID tensor inputs
-   */
   function textToPhonemeSequence(text, phonemeIdMap, ipa = null) {
     const pad = phonemeIdMap['_'] ? phonemeIdMap['_'][0] : 0;
     const bos = phonemeIdMap['^'] ? phonemeIdMap['^'][0] : 1;
@@ -162,7 +173,7 @@
 
     let tokenIds = [];
 
-    // If word has exact IPA transcription, prioritize IPA symbols
+    // Exact IPA phoneme lookup
     if (ipa && typeof ipa === 'string') {
       const cleanIpa = ipa.replace(/[\/\.]/g, '').trim();
       for (const char of cleanIpa) {
@@ -174,7 +185,7 @@
       }
     }
 
-    // Fallback or sentence character-level token mapping
+    // Fallback text character lookup
     if (tokenIds.length === 0) {
       const normalized = text.trim();
       for (const char of normalized) {
@@ -189,7 +200,7 @@
       }
     }
 
-    // Interleave tokens with pad ID: [bos, pad, tok1, pad, tok2, ..., pad, eos]
+    // Sequence format: [bos, pad, tok1, pad, tok2, ..., pad, eos]
     const sequence = [bos];
     for (const id of tokenIds) {
       sequence.push(pad);
@@ -212,7 +223,6 @@
     const phonemeIds = textToPhonemeSequence(text, config.phoneme_id_map, ipa);
     const seqLen = phonemeIds.length;
 
-    // Create ONNX inputs
     const inputTensor = new ort.Tensor('int64', BigInt64Array.from(phonemeIds.map(BigInt)), [1, seqLen]);
     const inputLengthsTensor = new ort.Tensor('int64', BigInt64Array.from([BigInt(seqLen)]), [1]);
     const scalesTensor = new ort.Tensor('float32', new Float32Array([noiseScale, lengthScale, noiseW]), [3]);
@@ -231,7 +241,7 @@
     const outputTensor = results.output || results[session.outputNames[0]];
 
     return {
-      audioData: outputTensor.data, // Float32Array PCM samples
+      audioData: outputTensor.data,
       sampleRate
     };
   }
@@ -239,21 +249,10 @@
   // ---------------------------------------------------------------------------
   // Unified Speech Controller with Piper WASM & Native Fallback
   // ---------------------------------------------------------------------------
-  async function speakText(text, accent = state.preferredAccent, buttonElement = null, ipa = null) {
-    // Handle parameter shuffling
-    if (typeof accent === 'object' && accent !== null && !buttonElement) {
-      buttonElement = accent;
-      accent = state.preferredAccent;
-    }
-
+  async function speakText(text, accent, buttonElement = null, ipa = null) {
     stopAudio();
 
     let cardElement = null;
-    if (state.activeSpeechButton) {
-      state.activeSpeechButton.classList.remove('is-speaking');
-      state.activeSpeechButton = null;
-    }
-
     if (buttonElement) {
       state.activeSpeechButton = buttonElement;
       buttonElement.classList.add('is-speaking');
@@ -311,21 +310,13 @@
         return;
       }
 
-      console.warn('No audio synthesis engine available.');
       cleanup();
     } catch (err) {
-      console.warn('Piper TTS inference notice (falling back):', err);
-
-      // Attempt fallback if Piper model loading took extra time
+      console.warn('Piper TTS inference fallback:', err);
+      // Emergency fallback
       if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.TextToSpeech) {
         try {
-          await window.Capacitor.Plugins.TextToSpeech.speak({
-            text,
-            lang: accent,
-            rate: 0.9,
-            pitch: 1.0,
-            volume: 1.0
-          });
+          await window.Capacitor.Plugins.TextToSpeech.speak({ text, lang: accent, rate: 0.9 });
         } catch (_) {}
       } else if ('speechSynthesis' in window) {
         const u = new SpeechSynthesisUtterance(text);
@@ -336,6 +327,64 @@
         return;
       }
       cleanup();
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Favorites Management
+  // ---------------------------------------------------------------------------
+  function toggleFavorite(id, starButton) {
+    if (state.favorites.has(id)) {
+      state.favorites.delete(id);
+      if (starButton) {
+        starButton.innerHTML = ICONS.starOutline;
+        starButton.classList.remove('is-favorite');
+      }
+    } else {
+      state.favorites.add(id);
+      if (starButton) {
+        starButton.innerHTML = ICONS.starFilled;
+        starButton.classList.add('is-favorite');
+      }
+    }
+
+    try {
+      localStorage.setItem(STORAGE_KEY_FAVS, JSON.stringify(Array.from(state.favorites)));
+    } catch (_) {}
+
+    updateFavoritesCount();
+
+    // If currently viewing favorites tab, immediately re-render list
+    if (state.selectedFilter === 'favorites') {
+      applyFilterAndRender();
+    }
+  }
+
+  function updateFavoritesCount() {
+    if (el.countFavs) {
+      el.countFavs.textContent = state.favorites.size;
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Training Mode (Blur Toggle)
+  // ---------------------------------------------------------------------------
+  function setTrainingMode(active) {
+    state.isTrainingMode = active;
+    try {
+      localStorage.setItem(STORAGE_KEY_BLUR, active ? 'true' : 'false');
+    } catch (_) {}
+
+    if (el.toggleAllBlurBtn) {
+      el.toggleAllBlurBtn.classList.toggle('active', active);
+    }
+    if (el.blurModeLabel) {
+      el.blurModeLabel.textContent = active ? 'Приховано' : 'Тренування';
+    }
+
+    // Toggle class on cardsList
+    if (el.cardsList) {
+      el.cardsList.classList.toggle('training-mode-active', active);
     }
   }
 
@@ -353,7 +402,10 @@
       state.dictionary = getFallbackDictionary();
     }
 
-    el.countAll.textContent = state.dictionary.length;
+    if (el.countAll) {
+      el.countAll.textContent = state.dictionary.length;
+    }
+    updateFavoritesCount();
     applyFilterAndRender();
   }
 
@@ -362,12 +414,19 @@
   // ---------------------------------------------------------------------------
   function applyFilterAndRender() {
     const query = state.searchQuery.trim().toLowerCase();
-    const pos = state.selectedPos;
+    const filter = state.selectedFilter;
 
     state.filteredList = state.dictionary.filter(item => {
-      if (pos !== 'all' && item.partOfSpeech.toLowerCase() !== pos) {
-        return false;
+      // 1. Filter by Favorites
+      if (filter === 'favorites') {
+        if (!state.favorites.has(item.id)) return false;
+      } 
+      // 2. Filter by Part of Speech
+      else if (filter !== 'all') {
+        if (item.partOfSpeech.toLowerCase() !== filter) return false;
       }
+
+      // 3. Search query match
       if (!query) return true;
 
       const wordMatch = item.word.toLowerCase().includes(query);
@@ -392,14 +451,18 @@
       el.emptyState.hidden = false;
       el.cardsList.hidden = true;
     } else {
-      el.resultsCount.textContent = `Знайдено: ${count} із ${total} слів`;
+      if (state.selectedFilter === 'favorites') {
+        el.resultsCount.textContent = `Збережено: ${count} слів`;
+      } else {
+        el.resultsCount.textContent = `Знайдено: ${count} із ${total}`;
+      }
       el.emptyState.hidden = true;
       el.cardsList.hidden = false;
     }
   }
 
   // ---------------------------------------------------------------------------
-  // Card Rendering
+  // Card Rendering - Compact Material 3 Layout
   // ---------------------------------------------------------------------------
   function escapeHtml(str) {
     if (!str) return '';
@@ -423,6 +486,7 @@
     const query = state.searchQuery.trim().toLowerCase();
 
     state.filteredList.forEach(item => {
+      const isFav = state.favorites.has(item.id);
       const card = document.createElement('article');
       card.className = 'word-card';
       card.setAttribute('data-id', item.id);
@@ -431,75 +495,101 @@
       const levelLabel = item.level || 'B2';
 
       card.innerHTML = `
-        <div class="card-top">
-          <div class="word-info">
-            <div class="word-header-row">
+        <!-- Card Top Bar: Word, IPA, Badges, Word Audio Chips, Favorite Star -->
+        <div class="card-header-m3">
+          <div class="word-primary-meta">
+            <div class="word-title-row">
               <h2 class="word-title">${highlightMatches(item.word, query)}</h2>
               <span class="word-ipa">${escapeHtml(item.ipa)}</span>
+              
+              <!-- Compact Word Speech Chips (US & UK) -->
+              <div class="word-speech-chips">
+                <button class="speech-chip chip-us" data-action="speak-word-us" title="Озвучити US">
+                  <span class="flag">🇺🇸</span> <span>US</span> ${ICONS.volume}
+                </button>
+                <button class="speech-chip chip-uk" data-action="speak-word-uk" title="Озвучити UK">
+                  <span class="flag">🇬🇧</span> <span>UK</span> ${ICONS.volume}
+                </button>
+              </div>
             </div>
+
             <div class="badges-row">
               <span class="pos-tag">${escapeHtml(posLabel)}</span>
               <span class="level-tag">${escapeHtml(levelLabel)}</span>
             </div>
           </div>
+
+          <!-- Favorite Star Icon Button -->
+          <button class="fav-icon-btn ${isFav ? 'is-favorite' : ''}" data-action="toggle-fav" title="${isFav ? 'Видалити з обраного' : 'Зберегти в обране'}">
+            ${isFav ? ICONS.starFilled : ICONS.starOutline}
+          </button>
         </div>
 
-        <div class="word-translation">
-          ${highlightMatches(item.translation, query)}
+        <!-- Word Translation with Tap-to-Reveal Blur for Self-Testing -->
+        <div class="word-translation-box" data-action="reveal-word" title="Тапніть, щоб відкрити/приховати">
+          <span class="translation-text blur-target">${highlightMatches(item.translation, query)}</span>
+          <span class="reveal-hint-badge">переклад</span>
         </div>
 
-        <div class="example-box">
-          <p class="example-phrase">“${highlightMatches(item.exampleSentence, query)}”</p>
-          <p class="example-translation">${highlightMatches(item.exampleTranslation, query)}</p>
-        </div>
-
-        <div class="card-audio-grid">
-          <!-- Row 1: Word Speech (US & UK) -->
-          <div class="audio-row">
-            <button class="speech-btn btn-word btn-us" data-action="speak-word-us" title="Озвучити слово: US (Lessac)">
-              <span class="flag">🇺🇸</span> <span>US Слово</span>
-            </button>
-            <button class="speech-btn btn-word btn-uk" data-action="speak-word-uk" title="Озвучити слово: UK (Alan)">
-              <span class="flag">🇬🇧</span> <span>UK Слово</span>
-            </button>
+        <!-- Quote Context Box with Integrated Mini Audio Icons -->
+        <div class="example-quote-box">
+          <div class="quote-text-container">
+            <p class="example-phrase">“${highlightMatches(item.exampleSentence, query)}”</p>
+            <p class="example-translation blur-target" data-action="reveal-phrase">${highlightMatches(item.exampleTranslation, query)}</p>
           </div>
 
-          <!-- Row 2: Phrase Speech (US & UK) -->
-          <div class="audio-row">
-            <button class="speech-btn btn-phrase btn-us" data-action="speak-phrase-us" title="Озвучити фразу: US (Lessac)">
-              <span class="flag">🇺🇸</span> <span>US Фраза</span>
+          <!-- Bottom Right Floating Mini Audio Flags -->
+          <div class="phrase-audio-actions">
+            <button class="mini-speech-btn" data-action="speak-phrase-us" title="Озвучити фразу: US">
+              <span class="flag">🇺🇸</span>
             </button>
-            <button class="speech-btn btn-phrase btn-uk" data-action="speak-phrase-uk" title="Озвучити фразу: UK (Alan)">
-              <span class="flag">🇬🇧</span> <span>UK Фраза</span>
+            <button class="mini-speech-btn" data-action="speak-phrase-uk" title="Озвучити фразу: UK">
+              <span class="flag">🇬🇧</span>
             </button>
           </div>
         </div>
       `;
 
-      // Event Listeners for 4 Accent Speech Buttons
+      // Event Listeners for Word Audio Chips
       const wordUsBtn = card.querySelector('[data-action="speak-word-us"]');
       const wordUkBtn = card.querySelector('[data-action="speak-word-uk"]');
-      const phraseUsBtn = card.querySelector('[data-action="speak-phrase-us"]');
-      const phraseUkBtn = card.querySelector('[data-action="speak-phrase-uk"]');
-
       wordUsBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         speakText(item.word, 'en-US', wordUsBtn, item.ipa);
       });
-
       wordUkBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         speakText(item.word, 'en-GB', wordUkBtn, item.ipa);
       });
 
+      // Event Listeners for Phrase Mini Audio Buttons
+      const phraseUsBtn = card.querySelector('[data-action="speak-phrase-us"]');
+      const phraseUkBtn = card.querySelector('[data-action="speak-phrase-uk"]');
       phraseUsBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         speakText(item.exampleSentence, 'en-US', phraseUsBtn, null);
       });
-
       phraseUkBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         speakText(item.exampleSentence, 'en-GB', phraseUkBtn, null);
+      });
+
+      // Event Listener for Favorite Star
+      const favBtn = card.querySelector('[data-action="toggle-fav"]');
+      favBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleFavorite(item.id, favBtn);
+      });
+
+      // Tap to toggle blur on translation
+      const transBox = card.querySelector('[data-action="reveal-word"]');
+      transBox.addEventListener('click', () => {
+        transBox.classList.toggle('revealed');
+      });
+
+      const phraseTrans = card.querySelector('[data-action="reveal-phrase"]');
+      phraseTrans.addEventListener('click', () => {
+        phraseTrans.classList.toggle('revealed');
       });
 
       fragment.appendChild(card);
@@ -513,12 +603,14 @@
   // Event Bindings
   // ---------------------------------------------------------------------------
   function initEvents() {
+    // Search input
     el.searchInput.addEventListener('input', (e) => {
       state.searchQuery = e.target.value;
       el.clearSearchBtn.hidden = !state.searchQuery;
       applyFilterAndRender();
     });
 
+    // Clear search
     el.clearSearchBtn.addEventListener('click', () => {
       state.searchQuery = '';
       el.searchInput.value = '';
@@ -527,9 +619,10 @@
       applyFilterAndRender();
     });
 
+    // Reset filters
     el.resetFilterBtn.addEventListener('click', () => {
       state.searchQuery = '';
-      state.selectedPos = 'all';
+      state.selectedFilter = 'all';
       el.searchInput.value = '';
       el.clearSearchBtn.hidden = true;
 
@@ -539,19 +632,27 @@
       applyFilterAndRender();
     });
 
+    // Filter Chips click
     el.filterChips.addEventListener('click', (e) => {
       const chip = e.target.closest('.chip');
       if (!chip) return;
 
-      const pos = chip.dataset.pos;
-      if (state.selectedPos === pos) return;
+      const filterType = chip.dataset.pos;
+      if (state.selectedFilter === filterType) return;
 
-      state.selectedPos = pos;
+      state.selectedFilter = filterType;
       el.filterChips.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
 
       applyFilterAndRender();
     });
+
+    // Self-test Blur Mode Toggle Button
+    if (el.toggleAllBlurBtn) {
+      el.toggleAllBlurBtn.addEventListener('click', () => {
+        setTrainingMode(!state.isTrainingMode);
+      });
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -577,9 +678,10 @@
   // ---------------------------------------------------------------------------
   initOnnxEnvironment();
   initEvents();
+  setTrainingMode(state.isTrainingMode);
   loadDictionary();
 
-  // Preload both Piper INT8 neural models in background for zero-latency speech
+  // Preload Piper INT8 models in background for instantaneous first playback
   if (typeof ort !== 'undefined') {
     setTimeout(() => {
       loadPiperModel('en-US').catch(() => {});

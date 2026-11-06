@@ -117,30 +117,6 @@ html, body {
   display: block;
 }
 
-.voice-picker {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 7px 14px;
-  border-radius: var(--radius-pill);
-  background: rgba(30, 41, 66, 0.85);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  color: #ffffff;
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.voice-picker:active {
-  transform: scale(0.94);
-  background: rgba(56, 189, 248, 0.2);
-  border-color: var(--accent-cyan);
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
-}
-
 /* Search Box */
 .search-container {
   display: flex;
@@ -455,26 +431,36 @@ html, body {
   line-height: 1.4;
 }
 
-/* Buttons for speech with ripple & smooth press animation */
-.card-actions {
+/* Audio Buttons Grid: 2 rows with US and UK speech buttons */
+.card-audio-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.audio-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-top: 4px;
+  gap: 8px;
+  width: 100%;
 }
 
 .speech-btn {
   position: relative;
   overflow: hidden;
+  flex: 1 1 0;
+  min-width: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  height: 40px;
-  padding: 0 16px;
+  gap: 6px;
+  height: 38px;
+  padding: 0 10px;
   border-radius: var(--radius-md);
-  font-size: 0.84rem;
+  font-size: 0.8rem;
   font-weight: 600;
+  white-space: nowrap;
   border: 1px solid var(--border-subtle);
   background: var(--bg-surface);
   color: var(--text-primary);
@@ -482,6 +468,12 @@ html, body {
   user-select: none;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   outline: none;
+}
+
+.speech-btn .flag {
+  font-size: 0.95rem;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 /* Material-style ripple effect */
@@ -508,36 +500,68 @@ html, body {
 }
 
 .speech-btn:active {
-  transform: scale(0.94);
+  transform: scale(0.95);
   filter: brightness(1.2);
 }
 
-.speech-btn.btn-word {
+/* Word Buttons (US & UK) */
+.speech-btn.btn-word.btn-us {
   background: rgba(56, 189, 248, 0.12);
   border-color: rgba(56, 189, 248, 0.35);
   color: var(--accent-cyan);
 }
 
-.speech-btn.btn-word:hover {
+.speech-btn.btn-word.btn-us:hover {
   background: rgba(56, 189, 248, 0.22);
 }
 
-.speech-btn.btn-word:active {
+.speech-btn.btn-word.btn-us:active {
   background: rgba(56, 189, 248, 0.38);
 }
 
-.speech-btn.btn-phrase {
+.speech-btn.btn-word.btn-uk {
   background: rgba(129, 140, 248, 0.12);
   border-color: rgba(129, 140, 248, 0.35);
   color: var(--accent-indigo);
 }
 
-.speech-btn.btn-phrase:hover {
+.speech-btn.btn-word.btn-uk:hover {
   background: rgba(129, 140, 248, 0.22);
 }
 
-.speech-btn.btn-phrase:active {
+.speech-btn.btn-word.btn-uk:active {
   background: rgba(129, 140, 248, 0.38);
+}
+
+/* Phrase Buttons (US & UK) */
+.speech-btn.btn-phrase.btn-us {
+  background: rgba(15, 23, 42, 0.85);
+  border-color: rgba(56, 189, 248, 0.25);
+  color: #bae6fd;
+}
+
+.speech-btn.btn-phrase.btn-us:hover {
+  background: rgba(56, 189, 248, 0.18);
+  border-color: var(--accent-cyan);
+}
+
+.speech-btn.btn-phrase.btn-us:active {
+  background: rgba(56, 189, 248, 0.3);
+}
+
+.speech-btn.btn-phrase.btn-uk {
+  background: rgba(15, 23, 42, 0.85);
+  border-color: rgba(129, 140, 248, 0.25);
+  color: #c7d2fe;
+}
+
+.speech-btn.btn-phrase.btn-uk:hover {
+  background: rgba(129, 140, 248, 0.18);
+  border-color: var(--accent-indigo);
+}
+
+.speech-btn.btn-phrase.btn-uk:active {
+  background: rgba(129, 140, 248, 0.3);
 }
 
 /* Speaking State Animation with Neon Glow */
@@ -545,7 +569,7 @@ html, body {
   background: linear-gradient(135deg, #0284c7, #6366f1) !important;
   color: #ffffff !important;
   border-color: transparent !important;
-  box-shadow: 0 0 16px rgba(56, 189, 248, 0.65) !important;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.7) !important;
   transform: scale(1.02);
   animation: pulseGlow 1.2s infinite alternate;
 }
@@ -614,14 +638,18 @@ html, body {
    ========================================================================== */
 
 @media (max-width: 480px) {
-  .card-actions {
-    flex-direction: row;
-    width: 100%;
+  .audio-row {
+    gap: 6px;
   }
 
   .speech-btn {
-    flex: 1;
-    font-size: 0.8rem;
-    padding: 0 10px;
+    font-size: 0.76rem;
+    padding: 0 6px;
+    height: 36px;
+    gap: 4px;
+  }
+
+  .speech-btn .flag {
+    font-size: 0.88rem;
   }
 }

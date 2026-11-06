@@ -46,9 +46,7 @@
     resultsCount: document.getElementById('resultsCount'),
     countAll: document.getElementById('countAll'),
     emptyState: document.getElementById('emptyState'),
-    resetFilterBtn: document.getElementById('resetFilterBtn'),
-    voiceToggleBtn: document.getElementById('voiceToggleBtn'),
-    currentAccent: document.getElementById('currentAccent')
+    resetFilterBtn: document.getElementById('resetFilterBtn')
   };
 
   // Icon SVG Templates
@@ -341,17 +339,6 @@
     }
   }
 
-  function toggleVoiceAccent() {
-    state.preferredAccent = state.preferredAccent === 'en-US' ? 'en-GB' : 'en-US';
-    const currentModel = PIPER_MODELS[state.preferredAccent];
-    el.currentAccent.textContent = currentModel.label;
-
-    // Pre-warm the newly selected model in background
-    if (typeof ort !== 'undefined') {
-      loadPiperModel(state.preferredAccent).catch(e => console.log('Preload:', e));
-    }
-  }
-
   // ---------------------------------------------------------------------------
   // Data Loading & Fallback
   // ---------------------------------------------------------------------------
@@ -466,28 +453,53 @@
           <p class="example-translation">${highlightMatches(item.exampleTranslation, query)}</p>
         </div>
 
-        <div class="card-actions">
-          <button class="speech-btn btn-word" data-action="speak-word" title="Озвучити слово">
-            ${ICONS.speaker} <span>Слово</span>
-          </button>
-          <button class="speech-btn btn-phrase" data-action="speak-phrase" title="Озвучити фразу">
-            ${ICONS.quote} <span>Фраза</span>
-          </button>
+        <div class="card-audio-grid">
+          <!-- Row 1: Word Speech (US & UK) -->
+          <div class="audio-row">
+            <button class="speech-btn btn-word btn-us" data-action="speak-word-us" title="Озвучити слово: US (Lessac)">
+              <span class="flag">🇺🇸</span> <span>US Слово</span>
+            </button>
+            <button class="speech-btn btn-word btn-uk" data-action="speak-word-uk" title="Озвучити слово: UK (Alan)">
+              <span class="flag">🇬🇧</span> <span>UK Слово</span>
+            </button>
+          </div>
+
+          <!-- Row 2: Phrase Speech (US & UK) -->
+          <div class="audio-row">
+            <button class="speech-btn btn-phrase btn-us" data-action="speak-phrase-us" title="Озвучити фразу: US (Lessac)">
+              <span class="flag">🇺🇸</span> <span>US Фраза</span>
+            </button>
+            <button class="speech-btn btn-phrase btn-uk" data-action="speak-phrase-uk" title="Озвучити фразу: UK (Alan)">
+              <span class="flag">🇬🇧</span> <span>UK Фраза</span>
+            </button>
+          </div>
         </div>
       `;
 
-      // Event Listeners for Speech Buttons
-      const wordBtn = card.querySelector('[data-action="speak-word"]');
-      const phraseBtn = card.querySelector('[data-action="speak-phrase"]');
+      // Event Listeners for 4 Accent Speech Buttons
+      const wordUsBtn = card.querySelector('[data-action="speak-word-us"]');
+      const wordUkBtn = card.querySelector('[data-action="speak-word-uk"]');
+      const phraseUsBtn = card.querySelector('[data-action="speak-phrase-us"]');
+      const phraseUkBtn = card.querySelector('[data-action="speak-phrase-uk"]');
 
-      wordBtn.addEventListener('click', (e) => {
+      wordUsBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        speakText(item.word, state.preferredAccent, wordBtn, item.ipa);
+        speakText(item.word, 'en-US', wordUsBtn, item.ipa);
       });
 
-      phraseBtn.addEventListener('click', (e) => {
+      wordUkBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        speakText(item.exampleSentence, state.preferredAccent, phraseBtn, null);
+        speakText(item.word, 'en-GB', wordUkBtn, item.ipa);
+      });
+
+      phraseUsBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        speakText(item.exampleSentence, 'en-US', phraseUsBtn, null);
+      });
+
+      phraseUkBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        speakText(item.exampleSentence, 'en-GB', phraseUkBtn, null);
       });
 
       fragment.appendChild(card);
@@ -540,10 +552,6 @@
 
       applyFilterAndRender();
     });
-
-    el.voiceToggleBtn.addEventListener('click', () => {
-      toggleVoiceAccent();
-    });
   }
 
   // ---------------------------------------------------------------------------
@@ -571,8 +579,11 @@
   initEvents();
   loadDictionary();
 
-  // Set default accent label
-  if (el.currentAccent) {
-    el.currentAccent.textContent = PIPER_MODELS[state.preferredAccent].label;
+  // Preload both Piper INT8 neural models in background for zero-latency speech
+  if (typeof ort !== 'undefined') {
+    setTimeout(() => {
+      loadPiperModel('en-US').catch(() => {});
+      loadPiperModel('en-GB').catch(() => {});
+    }, 600);
   }
 })();

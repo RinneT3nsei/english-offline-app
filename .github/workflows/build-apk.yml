@@ -24,11 +24,16 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Build Android App
+      - name: Install dependencies
+        run: npm install
+
+      - name: Initialize Android and sync Capacitor plugins
         run: |
-          npm install
           npx cap add android || true
           npx cap sync android
+
+      - name: Build Android APK
+        run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug

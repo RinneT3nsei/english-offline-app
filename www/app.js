@@ -38,78 +38,81 @@
   };
 
   // ---------------------------------------------------------------------------
-  // Speech Synthesis Controller
+  // Text-To-Speech Controller (Capacitor Native TTS with Web Speech fallback)
   // ---------------------------------------------------------------------------
   function initSpeech() {
-    if (!('speechSynthesis' in window)) {
-      console.warn('Speech synthesis not supported in this environment.');
-      return;
-    }
-
-    const loadVoices = () => {
-      state.availableVoices = window.speechSynthesis.getVoices();
-    };
-
-    loadVoices();
-    if (window.speechSynthesis.onvoiceschanged !== undefined) {
-      window.speechSynthesis.onvoiceschanged = loadVoices;
+    if ('speechSynthesis' in window) {
+      const loadVoices = () => {
+        state.availableVoices = window.speechSynthesis.getVoices();
+      };
+      loadVoices();
+      if (window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+      }
     }
   }
 
-  function getBestVoice(targetLang) {
-    if (!state.availableVoices || state.availableVoices.length === 0) {
-      return null;
+  async function speakText(text, lang = state.preferredAccent, buttonElement = null) {
+    // If button was passed as 2nd arg by mistake, handle gracefully
+    if (typeof lang === 'object' && lang !== null && !buttonElement) {
+      buttonElement = lang;
+      lang = state.preferredAccent;
     }
 
-    // Exact match (e.g. en-US)
-    let match = state.availableVoices.find(v => v.lang === targetLang);
-    if (match) return match;
-
-    // Language prefix match (e.g. en-*)
-    const prefix = targetLang.split('-')[0];
-    match = state.availableVoices.find(v => v.lang.startsWith(prefix));
-    return match || null;
-  }
-
-  function speakText(text, buttonElement, customRate = 0.9) {
-    if (!('speechSynthesis' in window)) {
-      alert('Ваш пристрій не підтримує Web Speech API.');
-      return;
-    }
-
-    // Stop ongoing speech
-    window.speechSynthesis.cancel();
     if (state.activeSpeechButton) {
       state.activeSpeechButton.classList.remove('is-speaking');
       state.activeSpeechButton = null;
     }
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = state.preferredAccent;
-    utterance.rate = customRate; // Clear pace for learners
-    utterance.pitch = 1.0;
-
-    const voice = getBestVoice(state.preferredAccent);
-    if (voice) {
-      utterance.voice = voice;
-    }
-
     if (buttonElement) {
       state.activeSpeechButton = buttonElement;
       buttonElement.classList.add('is-speaking');
-
-      const cleanup = () => {
-        buttonElement.classList.remove('is-speaking');
-        if (state.activeSpeechButton === buttonElement) {
-          state.activeSpeechButton = null;
-        }
-      };
-
-      utterance.onend = cleanup;
-      utterance.onerror = cleanup;
     }
 
-    window.speechSynthesis.speak(utterance);
+    const cleanup = () => {
+      if (buttonElement) {
+        buttonElement.classList.remove('is-speaking');
+      }
+      if (state.activeSpeechButton === buttonElement) {
+        state.activeSpeechButton = null;
+      }
+    };
+
+    try {
+      // 1. Native Capacitor TextToSpeech Plugin (Android WebView Offline)
+      if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.TextToSpeech) {
+        try {
+          await window.Capacitor.Plugins.TextToSpeech.stop();
+        } catch (_) {}
+
+        await window.Capacitor.Plugins.TextToSpeech.speak({
+          text: text,
+          lang: lang || 'en-US',
+          rate: 0.9,
+          pitch: 1.0,
+          volume: 1.0,
+          category: 'ambient',
+        });
+        cleanup();
+      } 
+      // 2. Fallback to Web Speech API in desktop browser
+      else if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = lang || 'en-US';
+        u.rate = 0.9;
+        u.pitch = 1.0;
+        u.onend = cleanup;
+        u.onerror = cleanup;
+        window.speechSynthesis.speak(u);
+      } else {
+        console.warn('No TTS engine available in this environment');
+        cleanup();
+      }
+    } catch (err) {
+      console.error('TTS error:', err);
+      cleanup();
+    }
   }
 
   function toggleVoiceAccent() {
@@ -251,12 +254,12 @@
 
       wordBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        speakText(item.word, wordBtn, 0.85);
+        speakText(item.word, state.preferredAccent, wordBtn);
       });
 
       phraseBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        speakText(item.exampleSentence, phraseBtn, 0.92);
+        speakText(item.exampleSentence, state.preferredAccent, phraseBtn);
       });
 
       fragment.appendChild(card);

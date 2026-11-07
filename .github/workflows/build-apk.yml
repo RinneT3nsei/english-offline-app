@@ -2,7 +2,7 @@ name: Build Android APK
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -11,76 +11,38 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           lfs: true
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-
-      - name: Setup Java JDK 21 (Zulu)
+      - name: Setup Java
         uses: actions/setup-java@v5
         with:
           distribution: 'zulu'
           java-version: '21'
 
-      - name: Ensure Piper TTS models and ONNX WebAssembly are present
-        run: |
-          mkdir -p www/assets/tts
-          
-          # Download en_US Lessac INT8 model if missing
-          if [ ! -f "www/assets/tts/en_US-lessac-medium.onnx" ]; then
-            echo "Downloading en_US Lessac INT8 ONNX model..."
-            curl -L -o lessac-int8.tar.bz2 "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-piper-en_US-lessac-medium-int8.tar.bz2"
-            tar -xvf lessac-int8.tar.bz2
-            cp vits-piper-en_US-lessac-medium-int8/en_US-lessac-medium.onnx www/assets/tts/
-            cp vits-piper-en_US-lessac-medium-int8/en_US-lessac-medium.onnx.json www/assets/tts/
-            rm -rf lessac-int8.tar.bz2 vits-piper-en_US-lessac-medium-int8
-          fi
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
 
-          # Download en_GB Alan INT8 model if missing
-          if [ ! -f "www/assets/tts/en_GB-alan-medium.onnx" ]; then
-            echo "Downloading en_GB Alan INT8 ONNX model..."
-            curl -L -o alan-int8.tar.bz2 "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-piper-en_GB-alan-medium-int8.tar.bz2"
-            tar -xvf alan-int8.tar.bz2
-            cp vits-piper-en_GB-alan-medium-int8/en_GB-alan-medium.onnx www/assets/tts/
-            cp vits-piper-en_GB-alan-medium-int8/en_GB-alan-medium.onnx.json www/assets/tts/
-            rm -rf alan-int8.tar.bz2 vits-piper-en_GB-alan-medium-int8
-          fi
-
-          # Download ONNX Runtime Web files if missing
-          if [ ! -f "www/assets/tts/ort.min.js" ]; then
-            curl -L -o www/assets/tts/ort.min.js "https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"
-          fi
-          if [ ! -f "www/assets/tts/ort-wasm-simd.wasm" ]; then
-            curl -L -o www/assets/tts/ort-wasm-simd.wasm "https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort-wasm-simd.wasm"
-          fi
-          if [ ! -f "www/assets/tts/ort-wasm.wasm" ]; then
-            curl -L -o www/assets/tts/ort-wasm.wasm "https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort-wasm.wasm"
-          fi
-
-          ls -lh www/assets/tts/
-
-      - name: Install dependencies
+      - name: Install Dependencies
         run: npm install
 
-      - name: Initialize Android and sync Capacitor plugins
+      - name: Sync Capacitor Android
         run: |
           npx cap add android || true
           npx cap sync android
 
-      - name: Build Android APK
-        env:
-          GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m"
+      - name: Build Android APK (Debug)
+        working-directory: android
         run: |
-          cd android
           chmod +x gradlew
           ./gradlew assembleDebug
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v5
         with:
-          name: Offline-English-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: OfflineEnglish-Debug
+          path: android/app/build/outputs/apk/debug/*.apk
+          retention-days: 14

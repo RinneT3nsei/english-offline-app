@@ -65,44 +65,47 @@ html, body {
 }
 
 /* ==========================================================================
-   Header & Search Control Bar (Scroll-aware Quick Return M3 App Bar)
+   Material Design 3 Compact Sticky App Bar Architecture
    ========================================================================== */
 
-:root {
-  --header-height: calc(136px + env(safe-area-inset-top));
-}
-
-.app-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  padding-top: max(12px, env(safe-area-inset-top));
-  padding-left: max(14px, env(safe-area-inset-left));
-  padding-right: max(14px, env(safe-area-inset-right));
-  padding-bottom: 6px;
-  transition: transform 0.4s cubic-bezier(0.05, 0.7, 0.1, 1.0), opacity 0.3s ease, box-shadow 0.3s ease;
-  will-change: transform, opacity;
-}
-
-/* Quick Return Hide state when scrolling down */
-.header--hidden {
-  transform: translateY(-100%);
-  opacity: 0.85;
-  box-shadow: none;
-}
-
-.header-inner {
+/* 1. Upper mini-block: Logo, Brand & Training Toggle (scrolls naturally away) */
+.top-app-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 6px;
+  padding-top: max(12px, env(safe-area-inset-top));
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+  padding-bottom: 6px;
+  background-color: var(--m3-surface);
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+/* 2. Lower mini-block: Permanently Sticky Search & Filter Bar */
+.sticky-app-bar {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(15, 23, 42, 0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  padding-top: max(8px, env(safe-area-inset-top));
+  padding-bottom: 8px;
+  padding-left: max(14px, env(safe-area-inset-left));
+  padding-right: max(14px, env(safe-area-inset-right));
+}
+
+.sticky-inner {
+  max-width: 680px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
 }
 
 .brand {
@@ -178,6 +181,7 @@ html, body {
 }
 
 /* Search Box M3 (Ultra-compact & Clean) */
+.sticky-inner,
 .search-container {
   display: flex;
   flex-direction: column;
@@ -332,18 +336,20 @@ html, body {
    ========================================================================== */
 
 .main-content {
-  padding-top: calc(var(--header-height, 140px) + 10px);
+  padding-top: 14px;
   padding-left: max(14px, env(safe-area-inset-left));
   padding-right: max(14px, env(safe-area-inset-right));
   padding-bottom: max(32px, env(safe-area-inset-bottom));
   max-width: 680px;
   margin: 0 auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .cards-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ==========================================================================

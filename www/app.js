@@ -61,8 +61,8 @@
     countFavs: document.getElementById('countFavs'),
     emptyState: document.getElementById('emptyState'),
     resetFilterBtn: document.getElementById('resetFilterBtn'),
-    toggleAllBlurBtn: document.getElementById('toggleAllBlurBtn'),
-    blurModeLabel: document.getElementById('blurModeLabel')
+    fabTrainingBtn: document.getElementById('fabTrainingBtn') || document.getElementById('toggleAllBlurBtn'),
+    fabTrainingLabel: document.getElementById('fabTrainingLabel') || document.getElementById('blurModeLabel')
   };
 
   // Icon SVG Templates (Material Symbols inspired)
@@ -375,11 +375,11 @@
       localStorage.setItem(STORAGE_KEY_BLUR, active ? 'true' : 'false');
     } catch (_) {}
 
-    if (el.toggleAllBlurBtn) {
-      el.toggleAllBlurBtn.classList.toggle('active', active);
+    if (el.fabTrainingBtn) {
+      el.fabTrainingBtn.classList.toggle('active', active);
     }
-    if (el.blurModeLabel) {
-      el.blurModeLabel.textContent = active ? 'Приховано' : 'Тренування';
+    if (el.fabTrainingLabel) {
+      el.fabTrainingLabel.textContent = active ? 'Приховано' : 'Тренування';
     }
 
     // Toggle class on cardsList
@@ -647,9 +647,9 @@
       applyFilterAndRender();
     });
 
-    // Self-test Blur Mode Toggle Button
-    if (el.toggleAllBlurBtn) {
-      el.toggleAllBlurBtn.addEventListener('click', () => {
+    // Self-test Blur Mode Toggle Button (FAB)
+    if (el.fabTrainingBtn) {
+      el.fabTrainingBtn.addEventListener('click', () => {
         setTrainingMode(!state.isTrainingMode);
       });
     }

@@ -25,15 +25,6 @@
         <span class="brand-subtitle">Словник &amp; контекстні фрази</span>
       </div>
     </div>
-
-    <!-- Quick Self-test Blur Toggle -->
-    <button id="toggleAllBlurBtn" class="action-pill-btn" title="Режим тренування (приховати/показати всі переклади)">
-      <svg class="eye-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-        <circle cx="12" cy="12" r="3"></circle>
-      </svg>
-      <span id="blurModeLabel">Тренування</span>
-    </button>
   </header>
 
   <!-- 2. Lower Sticky Control Bar (Material 3: permanently sticky with frosted glass blur) -->
@@ -97,6 +88,12 @@
       <button id="resetFilterBtn" class="reset-btn">Скинути фільтри</button>
     </div>
   </main>
+
+  <!-- Material 3 Floating Action Button (FAB) for Training Mode -->
+  <button id="fabTrainingBtn" class="m3-fab" title="Режим тренування (приховати/показати всі переклади)" aria-label="Режим тренування">
+    <span class="fab-icon">⚡</span>
+    <span class="fab-label" id="fabTrainingLabel">Тренування</span>
+  </button>
 
   <!-- Local Offline ONNX Runtime Web for Piper Neural TTS -->
   <script src="assets/tts/ort.min.js"></script>

@@ -11,14 +11,14 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
         with:
           lfs: true
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
 
       - name: Setup Java JDK 21 (Zulu)
         uses: actions/setup-java@v5
@@ -80,7 +80,7 @@ jobs:
           ./gradlew assembleDebug
 
       - name: Upload APK
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         with:
           name: Offline-English-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
